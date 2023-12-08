@@ -37,20 +37,10 @@ void setup()
     Serial.println("start setup\n");
 
     CAN_module_create(&can, &CAN, CAN_500KBPS, BASED_ID, rx_masks, NOCM, rx_filters, NOCF);
-    // CAN_setup(&can);
-
-    while (CAN_OK != CAN.begin(MCP_STDEXT, CAN_500KBPS, MCP_16MHZ))
-    {
-        Serial.println("CAN BUS init failed");
-        delay(100);
-    }
-
-    CAN.init_Mask(0, 0, 0x3F);
-    CAN.init_Filt(0, 0, 0x31);
-    CAN.init_Filt(1, 0, 0x32);
+    CAN_setup(&can);
 }
 
 void loop()
-{
+{    
     CAN_read_message(&can, &msg);
 }

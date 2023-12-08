@@ -64,10 +64,15 @@ void loop()
     {
         Serial.println("send noise messge!\n");
 
-        CAN.sendMsgBuf((unsigned long)0x40, (uint8_t)MAX_BUFFER, &noise_msg);
+        CAN.sendMsgBuf((unsigned long)0b10000000, (uint8_t)MAX_BUFFER, &noise_msg);
         pre_time_noise = now;
     }
 }
+
+
+
+
+
 
 /*DASHBOARD*/
 // include LED signal

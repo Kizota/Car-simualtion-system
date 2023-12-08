@@ -46,19 +46,19 @@ void CAN_setup(CAN_module *can)
     }
     
 
-    // // init CAN masks
-    // for (int no = 0; no < can->masks_len; no++)
-    // {
-    //     Serial.println(*(can->rx_mask + no), HEX);
-    //     can->can->init_Mask(no, 0, *(can->rx_mask + no));
-    // }
+    // init CAN masks
+    for (int no = 0; no < can->masks_len; no++)
+    {
+        Serial.println(*(can->rx_mask + no), HEX);
+        can->can->init_Mask(no, 0, *(can->rx_mask + no));
+    }
 
-    // // init CAN filters
-    // for (int no = 0; no < can->filters_len; no++)
-    // {
-    //     Serial.println(*(can->rx_filter + no), HEX);
-    //     can->can->init_Filt(no, 0, *(can->rx_filter + no));
-    // }
+    // init CAN filters
+    for (int no = 0; no < can->filters_len; no++)
+    {
+        Serial.println(*(can->rx_filter + no), HEX);
+        can->can->init_Filt(no, 0, *(can->rx_filter + no));
+    }
 
     // set CAN mode
     can->can->setMode(MCP_NORMAL);
@@ -99,6 +99,13 @@ int Handle_sending_random_signal_comand(CAN_module *can, Command_t *command_list
 
     return 1;
 }
+
+//message filter
+int check_message_Valid(Message)
+{
+
+}
+
 
 //  Read the incoming message from the CAN network
 int CAN_read_message(CAN_module *can, Message *msg)
