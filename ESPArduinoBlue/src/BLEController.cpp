@@ -1,10 +1,13 @@
-#include "BLECommunication.h"
+#include "BLEController.h"
 
+#include <CANController.h>
 #include <HardwareSerial.h>
 
 #include <string>
 
-BLECommunication::BLECommunication(int rxPin, int txPin) : ble(Serial2), cruiseControlSpeed(0) {
+CANController can;
+
+BLEController::BLEController(int rxPin, int txPin) : ble(Serial2), cruiseControlSpeed(0) {
   // Start UART2 with specific pins
   Serial2.begin(9600, SERIAL_8N1, rxPin, txPin);  // Initialize HM-10 communication at 9600 baud rate
   delay(100);
@@ -12,7 +15,7 @@ BLECommunication::BLECommunication(int rxPin, int txPin) : ble(Serial2), cruiseC
   configureHM10();
 }
 
-void BLECommunication::loopBLE() {
+void BLEController::loopBLE() {
   // ID of the button pressed pressed.
   int button = ble.getButton();
   // ID of the slider moved.
@@ -66,7 +69,7 @@ void BLECommunication::loopBLE() {
   ble.sendDisplayData(6, String(temperature));
 }
 
-void BLECommunication::configureHM10() {
+void BLEController::configureHM10() {
   // Send AT commands to configure HM-10 module settings
   Serial2.println("AT");  // Check if the module responds
   delay(500);             // Delay to allow the module to respond
