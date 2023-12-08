@@ -1,57 +1,57 @@
 #ifndef MYCAN_H
 #define MYCAN_H
-#include "Arduino.h"
 #include <mcp_can.h>
+
+#include "Arduino.h"
 
 #define MAX_BUFFER 1
 
-typedef enum
-{
-    HIGH_NEAM_OFF,
-    HIGH_BEAM_ON,
-    INDICATOR_OFF,
-    INDICATOR_ON
+typedef enum {
+  HIGH_NEAM_OFF,
+  HIGH_BEAM_ON,
+  INDICATOR_OFF,
+  INDICATOR_ON
 } Message_t;
 
 typedef struct
 {
-    unsigned long *now;
-    unsigned long pre_time;
-    unsigned long interval;
+  unsigned long *now;
+  unsigned long pre_time;
+  unsigned long interval;
 } Timer;
 
 typedef struct
 {
-    unsigned long mask;
-    unsigned long *filter;
-    uint8_t len;
+  unsigned long mask;
+  unsigned long *filter;
+  uint8_t len;
 } Id_guard;
 
 typedef struct
 {
-    MCP_CAN *can;
-    uint8_t speed;
+  MCP_CAN *can;
+  uint8_t speed;
 
-    unsigned long tx_id;
-    unsigned long *rx_filter;
-    unsigned long *rx_mask;
+  unsigned long tx_id;
+  unsigned long *rx_filter;
+  unsigned long *rx_mask;
 
-    uint8_t filters_len;
-    uint8_t masks_len;
+  uint8_t filters_len;
+  uint8_t masks_len;
 } CAN_module;
 
 typedef struct
 {
-    unsigned long tx_id;
-    uint8_t len;
-    uint8_t pre_content;
-    uint8_t content;
+  unsigned long tx_id;
+  uint8_t len;
+  uint8_t pre_content;
+  uint8_t content;
 } Message;
 
 typedef struct
 {
-    unsigned long comp_id;
-    uint8_t command;
+  unsigned long comp_id;
+  uint8_t command;
 } Command_t;
 
 int Timer_create(Timer *timer, unsigned long *now, unsigned long interval);
@@ -68,7 +68,5 @@ int Handle_sending_random_signal_comand(CAN_module *can, Command_t *command_list
 int CAN_read_message(CAN_module *can, Message *msg);
 int CAN_check_message(Id_guard *id_guard, Message *msg);
 int CAN_print_message(Message *msg);
-
-
 
 #endif
