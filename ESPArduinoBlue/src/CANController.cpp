@@ -27,7 +27,7 @@ CANController::CANController(uint8_t speed, unsigned long tx_id, unsigned long *
 }
 
 int CANController::CAN_send_message(Command_t *command_list, Message_t msg) {
-  if (can == nullptr || command_list == nullptr) {
+  if (command_list == nullptr) {
     return 0;
   }
 
@@ -40,7 +40,7 @@ int CANController::CAN_send_message(Command_t *command_list, Message_t msg) {
 
 // steering wheels - node
 int CANController::Handle_sending_random_signal_comand(Command_t *command_list, int cmd_len, Timer *timer) {
-  if (can == nullptr || command_list == nullptr || timer == nullptr) {
+  if (command_list == nullptr || timer == nullptr) {
     return 0;
   }
 
@@ -60,7 +60,7 @@ int CANController::Handle_sending_random_signal_comand(Command_t *command_list, 
 
 //  Read the incoming message from the CAN network
 int CANController::CAN_read_message(Message *msg) {
-  if (msg == nullptr || can == nullptr) {
+  if (msg == nullptr) {
     return 0;
   }
 
