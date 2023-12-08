@@ -33,8 +33,8 @@ MCP_CAN CAN(spiCSPin);
 Message msg = {0, 0, 0};
 
 CAN_module can;
-uint8_t rx_masks[NOCM] = {};
-uint8_t rx_filters[NOCF] = {};
+unsigned long rx_masks[NOCM] = {};
+unsigned long rx_filters[NOCF] = {};
 
 Timer timer;
 Command_t commands[] = {{HIGH_BEAM_ID, ON}, {HIGH_BEAM_ID, OFF}, {INDICATOR_ID, ON}, {INDICATOR_ID, OFF}};

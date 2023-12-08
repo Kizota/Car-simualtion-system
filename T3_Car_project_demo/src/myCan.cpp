@@ -1,5 +1,18 @@
 #include "myCan.h"
 
+int Id_mask_create(Id_guard *id_guard, unsigned long mask, unsigned long *filters, uint8_t len)
+{
+    if (id_guard == nullptr || filters == nullptr)
+    {
+        return 0;
+    }
+    id_guard->mask = mask;
+    id_guard->filter = filters;
+    id_guard->len = len;
+
+    return 1;
+}
+
 int Timer_create(Timer *timer, unsigned long *now, unsigned long interval)
 {
     if (timer == nullptr || now == nullptr)
@@ -16,7 +29,7 @@ int Timer_create(Timer *timer, unsigned long *now, unsigned long interval)
 
 /* ----  Transmitter   ---- */
 // CAN function definition
-int CAN_module_create(CAN_module *can, MCP_CAN *CAN, uint8_t speed, uint8_t tx_id, uint8_t *rx_mask, uint8_t nofmasks, uint8_t *rx_filter, uint8_t nofilters)
+int CAN_module_create(CAN_module *can, MCP_CAN *CAN, uint8_t speed, unsigned long tx_id, unsigned long *rx_mask, uint8_t nofmasks, unsigned long *rx_filter, uint8_t nofilters)
 {
     if (can == nullptr || CAN == nullptr || rx_mask == nullptr || rx_filter == nullptr)
     {
@@ -44,7 +57,6 @@ void CAN_setup(CAN_module *can)
         Serial.println("CAN BUS init failed");
         delay(100);
     }
-    
 
     // init CAN masks
     for (int no = 0; no < can->masks_len; no++)
@@ -73,7 +85,8 @@ int CAN_send_message(CAN_module *can, Command_t *command_list, Message_t msg)
         return 0;
     }
 
-    unsigned long id = can->tx_id + command_list->comp_id;
+    unsigned long id = can->tx_id + (command_list + msg)->comp_id;
+  
 
     can->can->sendMsgBuf(id, (uint8_t)MAX_BUFFER, &(command_list + msg)->command);
 
@@ -92,7 +105,8 @@ int Handle_sending_random_signal_comand(CAN_module *can, Command_t *command_list
     {
         srand(time(NULL));
         uint8_t no = rand() % cmd_len;
-        Serial.println("send messge!\n");
+        Serial.print("send messge: ");
+        Serial.println(no);
         CAN_send_message(can, command_list, (Message_t)no);
         timer->pre_time = *timer->now;
     }
@@ -100,12 +114,7 @@ int Handle_sending_random_signal_comand(CAN_module *can, Command_t *command_list
     return 1;
 }
 
-//message filter
-int check_message_Valid(Message)
-{
-
-}
-
+// message filter
 
 //  Read the incoming message from the CAN network
 int CAN_read_message(CAN_module *can, Message *msg)
@@ -118,10 +127,32 @@ int CAN_read_message(CAN_module *can, Message *msg)
     if (CAN_MSGAVAIL == can->can->checkReceive())
     {
         can->can->readMsgBuf(&msg->tx_id, &msg->len, &msg->content);
-        CAN_print_message(msg);
     }
 
     return 1;
+}
+
+int CAN_check_message(Id_guard *id_guard, Message *msg)
+{
+    if (id_guard == nullptr || msg == nullptr)
+    {
+        return 0;
+    }
+
+    int is_valid = 0;
+
+    unsigned long concerned_bits = msg->tx_id & id_guard->mask;
+
+    // check concern bit with filter
+    for (int i = 0; i < id_guard->len && !is_valid; i++)
+    {
+        if (*(id_guard->filter + i) == concerned_bits)
+        {
+            is_valid = 1;
+        }
+    }
+
+    return is_valid;
 }
 
 // print the CAN message
@@ -132,12 +163,18 @@ int CAN_print_message(Message *msg)
         return 0;
     }
 
+    if (msg->content == msg->pre_content)
+    {
+        return 0;
+    }
     Serial.print("id: ");
     Serial.println(msg->tx_id, HEX);
     Serial.print("len: ");
     Serial.println(msg->len);
     Serial.print("cotent: ");
     Serial.println(msg->content);
+
+    msg->pre_content = msg->content;
 
     return 1;
 }
