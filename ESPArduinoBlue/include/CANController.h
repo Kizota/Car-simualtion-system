@@ -1,18 +1,33 @@
 #pragma once
 #include <mcp_can.h>
 
-#define MAX_BUFFER 1
+enum MessageID {
+  NODE_ID_LEFTBLINKER,          // Accepts on or off
+  NODE_ID_RIGHTBLINKER,         // Accepts on or off
+  NODE_ID_HIGHBEAM,             // Accepts on or off
+  NODE_ID_LOWBEAM,              // Accepts on or off
+  NODE_ID_TAILLIGHT,            // Accepts on or off
+  NODE_ID_BRAKELIGHT,           // Accepts on or off
+  NODE_ID_REVERSELIGHT,         // Accepts on or off
+  NODE_ID_ACCELERATE,           // Accepts speed in % from 0 to 100
+  NODE_ID_DECELERATE,           // Accepts speed in % from 0 to 100
+  NODE_ID_STEERLEFT,            // Accepts angle in degrees from 0 to 360
+  NODE_ID_STEERRIGHT,           // Accepts angle in degrees from 0 to 360
+  NODE_ID_SPEED,                // Accepts request
+  NODE_ID_RPM,                  // Accepts request
+  NODE_ID_TEMPERATURE,          // Accepts request
+  NODE_ID_PRESSURE,             // Accepts request
+  NODE_ID_DASHBOARD,            // Sends requests and accepts data
+  NODE_ID_CRUISECONTROL,        // Accepts on or off
+  NODE_ID_CRUISECONTROL_SPEED,  // Accepts speed in % from 0 to 100
+};
 
-typedef enum {
-  HIGH_BEAM_OFF,
-  HIGH_BEAM_ON,
-  LEFTINDICATOR_OFF,
-  LEFTINDICATOR_ON,
-  RIGHTINDICATOR_OFF,
-  RIGHTINDICATOR_ON,
-  CRUISECONTROL_OFF,
-  CRUISECONTROL_ON,
-} Message_t;
+// Commands for nodes over CAN
+enum CANCommand {
+  COMMAND_OFF,
+  COMMAND_ON,
+  COMMAND_REQUEST,
+};
 
 typedef struct
 {
@@ -21,48 +36,22 @@ typedef struct
   unsigned long interval;
 } Timer;
 
-typedef struct
-{
-  unsigned long mask;
-  unsigned long *filter;
-  uint8_t len;
-} Id_guard;
-
-typedef struct
-{
-  unsigned long tx_id;
-  uint8_t len;
-  uint8_t pre_content;
-  uint8_t content;
-} Message;
-
-typedef struct
-{
-  unsigned long comp_id;
-  uint8_t command;
-} Command_t;
-
-int Timer_create(Timer *timer, unsigned long *now, unsigned long interval);
-int Id_mask_create(Id_guard *id_guard, unsigned long mask, unsigned long *filters, uint8_t len);
+struct CanData {
+  INT32U MessageID;
+  INT8U len;
+  INT8U command[8];
+};
 
 class CANController {
  private:
-  MCP_CAN *can;
-  uint8_t speed;
-
-  unsigned long tx_id;
-  unsigned long *rx_filter;
-  unsigned long *rx_mask;
-
-  uint8_t filters_len;
-  uint8_t masks_len;
+  MCP_CAN CAN;
+  uint8_t CAN_INT;
 
  public:
-  CANController(uint8_t speed, unsigned long tx_id, unsigned long *rx_mask, uint8_t nofmasks, unsigned long *rx_filter, uint8_t nofilters);
-  int CAN_send_message(Command_t *command_list, Message_t msg);
-  int Handle_sending_random_signal_comand(Command_t *command_list, int cmd_len, Timer *timer);
+  CANController(uint8_t CAN_INT, uint8_t CAN_CS);
+  bool SendFloatCanMessage(uint8_t device_id, float value);
+  bool SendIntCanMessage(uint8_t device_id, int value);
+  CanData ReadCanMessage();
 
-  int CAN_read_message(Message *msg);
-  int CAN_check_message(Id_guard *id_guard, Message *msg);
-  int CAN_print_message(Message *msg);
+  // int CAN_print_message(CanData *msg);
 };

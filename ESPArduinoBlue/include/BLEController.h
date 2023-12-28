@@ -10,5 +10,6 @@ class BLEController {
 
  public:
   BLEController(int rxPin, int txPin);
-  void loopBLE();
+  void loopSendBLE();
+  void loopRecieveBLE();
 };

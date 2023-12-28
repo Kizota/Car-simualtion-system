@@ -2,19 +2,14 @@
 
 #include <HardwareSerial.h>
 
-#include <string>
+// #include <string>
 
 #include "CANController.h"
 
-#define OFF 0
-#define ON 1
+#define CAN0_INT 2  // Set INT to pin 2
+#define CAN0_CS 4   // Set CS to pin 4
 
-#define NOCF 0
-unsigned long rx_filters[NOCF] = {};
-#define NOCM 0
-unsigned long rx_masks[NOCM] = {};
-
-CANController can(CAN_500KBPS, rx_masks, NOCM, rx_filters, NOCF);
+CANController can(CAN0_INT, CAN0_CS);
 
 BLEController::BLEController(int rxPin, int txPin) : ble(Serial2), cruiseControlSpeed(0) {
   // Start UART2 with specific pins
@@ -24,7 +19,7 @@ BLEController::BLEController(int rxPin, int txPin) : ble(Serial2), cruiseControl
   configureHM10();
 }
 
-void BLEController::loopBLE() {
+void BLEController::loopSendBLE() {
   // ID of the button pressed pressed.
   int button = ble.getButton();
   // ID of the slider moved.
@@ -36,27 +31,35 @@ void BLEController::loopBLE() {
     Serial.println(button);
   }
   if (button == 1) {
+    can.SendIntCanMessage(NODE_ID_LEFTBLINKER, COMMAND_ON);
     Serial.println("LEFT BLINKER ON");
   }
   if (button == 2) {
+    can.SendIntCanMessage(NODE_ID_LEFTBLINKER, COMMAND_OFF);
     Serial.println("LEFT BLINKER OFF");
   }
   if (button == 3) {
+    can.SendIntCanMessage(NODE_ID_RIGHTBLINKER, COMMAND_ON);
     Serial.println("RIGHT BLINKER ON");
   }
   if (button == 4) {
+    can.SendIntCanMessage(NODE_ID_RIGHTBLINKER, COMMAND_OFF);
     Serial.println("RIGHT BLINKER OFF");
   }
   if (button == 5) {
+    can.SendIntCanMessage(NODE_ID_HIGHBEAM, COMMAND_ON);
     Serial.println("HIGHBEAM ON");
   }
   if (button == 6) {
+    can.SendIntCanMessage(NODE_ID_HIGHBEAM, COMMAND_OFF);
     Serial.println("HIGHBEAM OFF");
   }
   if (button == 7) {
+    can.SendIntCanMessage(NODE_ID_CRUISECONTROL, COMMAND_ON);
     Serial.println("CRUISECONTROL ON");
   }
   if (button == 8) {
+    can.SendIntCanMessage(NODE_ID_CRUISECONTROL, COMMAND_OFF);
     Serial.println("CRUISECONTROL OFF");
   }
   // Display slider data when slider moves
@@ -66,16 +69,33 @@ void BLEController::loopBLE() {
     Serial.print("\tValue: ");
     Serial.println(sliderVal);
     cruiseControlSpeed = sliderVal;
+    can.SendIntCanMessage(NODE_ID_CRUISECONTROL_SPEED, cruiseControlSpeed);
   }
+}
+
+void BLEController::loopRecieveBLE() {
+  CanData canData = can.ReadCanMessage();
   int actualSpeed, RPM, temperature;
   int leftFrontTirePressure, rightFrontTirePressure, leftRearTirePressure, rightRearTirePressure;
-  ble.sendDisplayData(0, String(actualSpeed));
-  ble.sendDisplayData(1, String(RPM));
-  ble.sendDisplayData(2, String(leftFrontTirePressure));
-  ble.sendDisplayData(3, String(rightFrontTirePressure));
-  ble.sendDisplayData(4, String(leftRearTirePressure));
-  ble.sendDisplayData(5, String(rightRearTirePressure));
-  ble.sendDisplayData(6, String(temperature));
+  if (canData.MessageID == NODE_ID_SPEED) {
+    actualSpeed = canData.command[0];
+    ble.sendDisplayData(0, String(actualSpeed));
+  } else if (canData.MessageID == NODE_ID_RPM) {
+    RPM = canData.command[0];
+    ble.sendDisplayData(1, String(RPM));
+  } else if (canData.MessageID == NODE_ID_PRESSURE) {
+    leftFrontTirePressure = canData.command[0];
+    rightFrontTirePressure = canData.command[1];
+    leftRearTirePressure = canData.command[2];
+    rightRearTirePressure = canData.command[3];
+    ble.sendDisplayData(2, String(leftFrontTirePressure));
+    ble.sendDisplayData(3, String(rightFrontTirePressure));
+    ble.sendDisplayData(4, String(leftRearTirePressure));
+    ble.sendDisplayData(5, String(rightRearTirePressure));
+  } else if (canData.MessageID == NODE_ID_TEMPERATURE) {
+    temperature = canData.command[0];
+    ble.sendDisplayData(6, String(temperature));
+  }
 }
 
 void BLEController::configureHM10() {
