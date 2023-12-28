@@ -75,25 +75,23 @@ void BLEController::loopSendBLE() {
 
 void BLEController::loopRecieveBLE() {
   CanData canData = can.ReadCanMessage();
-  int actualSpeed, RPM, temperature;
-  int leftFrontTirePressure, rightFrontTirePressure, leftRearTirePressure, rightRearTirePressure;
   if (canData.MessageID == NODE_ID_SPEED) {
-    actualSpeed = canData.command[0];
+    int actualSpeed = canData.command[0];
     ble.sendDisplayData(0, String(actualSpeed));
   } else if (canData.MessageID == NODE_ID_RPM) {
-    RPM = canData.command[0];
+    int RPM = canData.command[0];
     ble.sendDisplayData(1, String(RPM));
   } else if (canData.MessageID == NODE_ID_PRESSURE) {
-    leftFrontTirePressure = canData.command[0];
-    rightFrontTirePressure = canData.command[1];
-    leftRearTirePressure = canData.command[2];
-    rightRearTirePressure = canData.command[3];
+    int leftFrontTirePressure = canData.command[0];
+    int rightFrontTirePressure = canData.command[1];
+    int leftRearTirePressure = canData.command[2];
+    int rightRearTirePressure = canData.command[3];
     ble.sendDisplayData(2, String(leftFrontTirePressure));
     ble.sendDisplayData(3, String(rightFrontTirePressure));
     ble.sendDisplayData(4, String(leftRearTirePressure));
     ble.sendDisplayData(5, String(rightRearTirePressure));
   } else if (canData.MessageID == NODE_ID_TEMPERATURE) {
-    temperature = canData.command[0];
+    int temperature = canData.command[0];
     ble.sendDisplayData(6, String(temperature));
   }
 }
