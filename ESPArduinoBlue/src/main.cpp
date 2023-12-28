@@ -12,5 +12,6 @@ void setup() {
 }
 
 void loop() {
-  BLE.loopBLE();
+  BLE.loopSendBLE();
+  BLE.loopRecieveBLE();
 }
