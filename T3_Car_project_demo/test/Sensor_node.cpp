@@ -9,15 +9,18 @@
 #include <myCan.h>
 
 /*
-//NOTE - STEERING Wheels ECU
+//NOTE - Sensor ECU
  - transmitter
-  based id: 0x30
+  based id: 0x40
 */
 #define spiCSPin 5
 
-#define BASED_ID 0x30
-#define HIGH_BEAM_ID 1
-#define INDICATOR_ID 2
+//message id 
+#define BASED_ID 0x40
+#define TEMP_ID 1
+#define PRESSURER_ID 2
+
+#define NUM_OF_COMMAND 2
 
 #define NOCF 0
 #define NOCM 0
@@ -37,7 +40,7 @@ unsigned long rx_masks[NOCM] = {};
 unsigned long rx_filters[NOCF] = {};
 
 Timer timer;
-Command_t commands[] = {{HIGH_BEAM_ID, ON}, {HIGH_BEAM_ID, OFF}, {INDICATOR_ID, ON}, {INDICATOR_ID, OFF}};
+Command_t commands[NUM_OF_COMMAND] = {{TEMP_ID, 0},{PRESSURER_ID, 0}};
 uint8_t noise_msg = 1;
 
 // timer
@@ -55,9 +58,9 @@ void setup()
 void loop()
 {
     now = millis();
-
-    // send random commands for sigal ecus
-    Handle_sending_random_signal_comand(&can, commands, 4, &timer);
+    
+    //simulate sensor value sending from  
+    Handle_sending_sensor_data(&can, commands, NUM_OF_COMMAND, &timer);
 }
 
 

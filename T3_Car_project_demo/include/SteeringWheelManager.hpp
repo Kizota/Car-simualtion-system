@@ -3,15 +3,23 @@
 
 #include "IMessager.hpp"
 
+using namespace message;
 
 class SteeringWheelManager
 {
    private:
-   msg::ISender *sender;
 
+   ISender *sender;
+   
    public:
-   SteeringWheelManager()
+   SteeringWheelManager(ISender *sender) : sender(sender)
+   {
+      
+   }
 
+   //stearing wheel has the responsibility of reading the button signal and send signal?
+   
+   
 
 };
 #endif

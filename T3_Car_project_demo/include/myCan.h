@@ -5,13 +5,7 @@
 
 #define MAX_BUFFER 1
 
-typedef enum
-{
-    HIGH_NEAM_OFF,
-    HIGH_BEAM_ON,
-    INDICATOR_OFF,
-    INDICATOR_ON
-} Message_t;
+
 
 typedef struct
 {
@@ -61,8 +55,9 @@ int CAN_module_create(CAN_module *can, MCP_CAN *CAN, uint8_t speed, unsigned lon
 void CAN_setup(CAN_module *can);
 
 // transmitter functions
-int CAN_send_message(CAN_module *can, Command_t *command_list, Message_t msg);
+int CAN_send_message(CAN_module *can, Command_t *command_list, int no);
 int Handle_sending_random_signal_comand(CAN_module *can, Command_t *command_list, int cmd_len, Timer *timer);
+int Handle_sending_sensor_data(CAN_module *can, Command_t *command_list, int cmd_len, Timer *timer);
 
 // CAN reciever function
 int CAN_read_message(CAN_module *can, Message *msg);

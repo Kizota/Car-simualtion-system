@@ -1,7 +1,7 @@
-#include "CANController.h"
+#include "CanMessager.h"
 
 // CANController class definition
-CANController::CANController(uint8_t speed, unsigned long tx_id) : speed(speed), tx_id(tx_id)
+CanMessager::CanMessager(uint8_t speed, unsigned long tx_id) : speed(speed), tx_id(tx_id)
 {
   // connect to CAN network
   while (CAN_OK != can->begin(MCP_STDEXT, speed, MCP_16MHZ))
@@ -15,7 +15,7 @@ CANController::CANController(uint8_t speed, unsigned long tx_id) : speed(speed),
   Serial.println("CAN Bus init ok!\n");
 }
 
-int CANController::SendMessage(Command_t *command_list, Message_t msg)
+int CanMessager::SendMessage(Command_t *command_list, Message_t msg)
 {
 
   unsigned long id = tx_id + (command_list + msg)->comp_id;
@@ -26,7 +26,7 @@ int CANController::SendMessage(Command_t *command_list, Message_t msg)
 }
 
 //  Read the incoming message from the CAN network
-int CANController::ReadMessage(Message *msg)
+int CanMessager::ReadMessage(Message *msg)
 {
   if (msg == nullptr || can == nullptr)
   {
@@ -41,7 +41,7 @@ int CANController::ReadMessage(Message *msg)
   return 1;
 }
 
-int CANController::CAN_check_message(Id_guard *id_guard, Message *msg)
+int CanMessager::CAN_check_message(Id_guard *id_guard, Message *msg)
 {
   if (id_guard == nullptr || msg == nullptr)
   {
@@ -65,7 +65,7 @@ int CANController::CAN_check_message(Id_guard *id_guard, Message *msg)
 }
 
 // print the CAN message
-int CANController::CAN_print_message(Message *msg)
+int CanMessager::CAN_print_message(Message *msg)
 {
   if (msg == nullptr)
   {

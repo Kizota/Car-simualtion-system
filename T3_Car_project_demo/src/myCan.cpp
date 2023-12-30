@@ -1,4 +1,5 @@
 #include "myCan.h"
+#define MAX_SENSOR_VALUE 25
 
 int Id_mask_create(Id_guard *id_guard, unsigned long mask, unsigned long *filters, uint8_t len)
 {
@@ -78,17 +79,16 @@ void CAN_setup(CAN_module *can)
     Serial.println("CAN Bus init ok!\n");
 }
 
-int CAN_send_message(CAN_module *can, Command_t *command_list, Message_t msg)
+int CAN_send_message(CAN_module *can, Command_t *command_list, int no)
 {
     if (can == nullptr || command_list == nullptr)
     {
         return 0;
     }
 
-    unsigned long id = can->tx_id + (command_list + msg)->comp_id;
-  
+    unsigned long id = can->tx_id + (command_list + no)->comp_id;
 
-    can->can->sendMsgBuf(id, (uint8_t)MAX_BUFFER, &(command_list + msg)->command);
+    can->can->sendMsgBuf(id, (uint8_t)MAX_BUFFER, &(command_list + no)->command);
 
     return 1;
 }
@@ -107,7 +107,29 @@ int Handle_sending_random_signal_comand(CAN_module *can, Command_t *command_list
         uint8_t no = rand() % cmd_len;
         Serial.print("send messge: ");
         Serial.println(no);
-        CAN_send_message(can, command_list, (Message_t)no);
+        CAN_send_message(can, command_list, no);
+        timer->pre_time = *timer->now;
+    }
+
+    return 1;
+}
+
+// sensor node
+int Handle_sending_sensor_data(CAN_module *can, Command_t *command_list, int cmd_len, Timer *timer)
+{
+    if (can == nullptr || command_list == nullptr || timer == nullptr)
+    {
+        return 0;
+    }
+
+    if (*timer->now - timer->pre_time > timer->interval)
+    {
+        srand(time(NULL));
+        uint8_t no = rand() % cmd_len;
+
+        (command_list + no)->command = (uint8_t)(rand() % MAX_SENSOR_VALUE);
+
+        CAN_send_message(can, command_list, no);
         timer->pre_time = *timer->now;
     }
 
@@ -167,6 +189,8 @@ int CAN_print_message(Message *msg)
     {
         return 0;
     }
+    Serial.println("- commands come in - ");
+
     Serial.print("id: ");
     Serial.println(msg->tx_id, HEX);
     Serial.print("len: ");

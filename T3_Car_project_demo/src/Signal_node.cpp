@@ -53,10 +53,11 @@ void setup()
 void loop()
 {
     CAN_read_message(&can, &msg);
-    
-    //only print concerned messages 
+
+    // only print concerned messages
     if (CAN_check_message(&id_guard, &msg))
     {
+
         CAN_print_message(&msg);
     }
 }

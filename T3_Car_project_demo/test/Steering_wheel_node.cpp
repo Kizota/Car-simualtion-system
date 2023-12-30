@@ -8,26 +8,34 @@
 
 #include <myCan.h>
 
-/*
-//NOTE - STEERING Wheels ECU
- - transmitter
-  based id: 0x30
-*/
 #define spiCSPin 5
 
+// Message id
 #define BASED_ID 0x30
 #define HIGH_BEAM_ID 1
 #define INDICATOR_ID 2
 
+#define NUM_OF_COMMAND 4
+
+// filters and mask
 #define NOCF 0
 #define NOCM 0
 
+// Led state
 #define OFF 0
 #define ON 1
 
+// Timer
 #define TIME_NOISE_INTERVAL 1000
 #define TIME_INTERVAL 5000
-#define LED_PIN 22
+
+typedef enum
+{
+    HIGH_NEAM_OFF,
+    HIGH_BEAM_ON,
+    INDICATOR_OFF,
+    INDICATOR_ON
+} Message_t;
 
 MCP_CAN CAN(spiCSPin);
 Message msg = {0, 0, 0};
@@ -37,7 +45,7 @@ unsigned long rx_masks[NOCM] = {};
 unsigned long rx_filters[NOCF] = {};
 
 Timer timer;
-Command_t commands[] = {{HIGH_BEAM_ID, ON}, {HIGH_BEAM_ID, OFF}, {INDICATOR_ID, ON}, {INDICATOR_ID, OFF}};
+Command_t commands[NUM_OF_COMMAND] = {{HIGH_BEAM_ID, OFF}, {HIGH_BEAM_ID, ON}, {INDICATOR_ID, ON}, {INDICATOR_ID, OFF}};
 uint8_t noise_msg = 1;
 
 // timer
@@ -57,22 +65,8 @@ void loop()
     now = millis();
 
     // send random commands for sigal ecus
-    Handle_sending_random_signal_comand(&can, commands, 4, &timer);
-
-    // simulate sending noise from other ecus
-    if (now - pre_time_noise > TIME_NOISE_INTERVAL)
-    {
-        Serial.println("send noise messge!\n");
-
-        CAN.sendMsgBuf((unsigned long)0b10000000, (uint8_t)MAX_BUFFER, &noise_msg);
-        pre_time_noise = now;
-    }
+    Handle_sending_random_signal_comand(&can, commands, NUM_OF_COMMAND, &timer);
 }
-
-
-
-
-
 
 /*DASHBOARD*/
 // include LED signal
@@ -93,7 +87,6 @@ void loop()
     Temperature
     added id: 2
     content: TempVal
-
 */
 
 /*ENGINE CONTROL*/
