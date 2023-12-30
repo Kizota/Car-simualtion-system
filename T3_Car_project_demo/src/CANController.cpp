@@ -15,8 +15,10 @@ CANController::CANController(uint8_t speed, unsigned long tx_id) : speed(speed),
   Serial.println("CAN Bus init ok!\n");
 }
 
-int CANController::SendMessage(Command_t *command_list, Message_t msg)
-{
+int CANController::CAN_send_message(Command_t *command_list, Message_t msg) {
+  if (can == nullptr || command_list == nullptr) {
+    return 0;
+  }
 
   unsigned long id = tx_id + (command_list + msg)->comp_id;
 
@@ -25,11 +27,29 @@ int CANController::SendMessage(Command_t *command_list, Message_t msg)
   return 1;
 }
 
+// steering wheels - node
+int CANController::Handle_sending_random_signal_comand(Command_t *command_list, int cmd_len, Timer *timer) {
+  if (can == nullptr || command_list == nullptr || timer == nullptr) {
+    return 0;
+  }
+
+  if (*timer->now - timer->pre_time > timer->interval) {
+    srand(time(NULL));
+    uint8_t no = rand() % cmd_len;
+    Serial.print("send messge: ");
+    Serial.println(no);
+    CAN_send_message(command_list, (Message_t)no);
+    timer->pre_time = *timer->now;
+  }
+
+  return 1;
+}
+
+// message filter
+
 //  Read the incoming message from the CAN network
-int CANController::ReadMessage(Message *msg)
-{
-  if (msg == nullptr || can == nullptr)
-  {
+int CANController::CAN_read_message(Message *msg) {
+  if (msg == nullptr || can == nullptr) {
     return 0;
   }
 
