@@ -1,49 +1,52 @@
 #include "JoyStick.hpp"
+#define ANALOGREAD_TOLERANT 150
 
-JoyStick::JoyStick(std::string name, int xPin, int yPin, int swPin) : name(name), xPin(xPin), yPin(yPin), xParam(0), yParam(0)
+JoyStick::JoyStick(std::string name, int xPin, int yPin, int swPin) : name(name), xReader(xPin, ANALOGREAD_TOLERANT), yReader(yPin, ANALOGREAD_TOLERANT), direction(UNKNOWN)
 {
-    // configure pin mode
-    pinMode(xPin, INPUT);
-    pinMode(yPin, INPUT);
-
     swBt = new Button("sw_joystick", swPin, 50);
 
     // RTOS
+    readMutex = xSemaphoreCreateMutex();
     handler = new TaskHandler(name, JoyStick::ReadSignals, this);
 }
 
 JoyStick::~JoyStick()
 {
-
     // turn off task
+    handler->SetMode(OFF);
+}
+
+bool JoyStick::IsPressed()
+{
+    return swBt->IsPressed();
 }
 
 AxisState JoyStick::GetAxisState(Axis_t type)
 {
-    uint16_t *param = nullptr;
+    uint16_t param = 0;
     AxisState state = UNDETECTED;
 
     // selected read axis param
     switch (type)
     {
     case X:
-        param = &xParam;
+        param = xReader.val;
         break;
     case Y:
-        param = &yParam;
+        param = yReader.val;
         break;
     }
 
     // detecting state based on the range analog range
-    if (*param < MIN_ANALOG_VAL + tolerant)
+    if (param < MIN_ANALOG_VAL + tolerant)
     {
         state = START;
     }
-    else if (*param > MAX_ANALOG_VAL - tolerant)
+    else if (param > MAX_ANALOG_VAL - tolerant)
     {
         state = END;
     }
-    else if (*param > MID_ANALOG_VAL - tolerant && *param < MID_ANALOG_VAL + tolerant)
+    else if (param > MID_ANALOG_VAL - tolerant && param < MID_ANALOG_VAL + tolerant)
     {
         state = MIDDLE;
     }
@@ -54,20 +57,19 @@ AxisState JoyStick::GetAxisState(Axis_t type)
 // component suck
 Direction JoyStick::GetDirection()
 {
-    AxisState xState = GetAxisState(X);
-    AxisState yState = GetAxisState(Y);
 
-    Direction direction = UNKNOWN;
-
-    //  Serial.println(xState);
-    // Serial.println(yState);
+  
+   
+        AxisState xState = GetAxisState(X);
+        AxisState yState = GetAxisState(Y);
+    
 
     if (xState == START && (yState == MIDDLE || yState == END))
     // left
     {
         direction = LEFT;
     }
-    else if (xState == END && (yState == MIDDLE || yState == END ))
+    else if (xState == END && (yState == MIDDLE || yState == END))
     // right
     {
         direction = RIGHT;

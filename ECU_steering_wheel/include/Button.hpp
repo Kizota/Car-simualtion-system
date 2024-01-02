@@ -26,6 +26,8 @@ private:
     // read data
     uint8_t preState;
     uint8_t state;
+    
+    //
     bool isPressed;
 
     Timer *timer;
@@ -37,8 +39,10 @@ public:
     Button(std::string name, int pin, uint32_t interval);
 
     ~Button();
-
+    
     bool IsPressed();
+
+    bool IsHold();
 
     // on will turn on the read task, off will delete the task
     void SetReadMode(TaskMode mode);
@@ -58,7 +62,7 @@ public:
 
                 button->timer->ReFresh();
             }
-
+        
             // debounce
             if (button->timer->IsTimeOut())
             {
@@ -69,6 +73,10 @@ public:
                     // update state with thread safe
                     {
                         button->state = reading;
+                        if(reading == LOW)
+                        {
+                            button->isPressed = true;
+                        }
                         xSemaphoreGive(button->readMutex);
                     }
                 }

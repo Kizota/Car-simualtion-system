@@ -1,5 +1,5 @@
 #include <Arduino.h>
-
+#include "CanController.h"
 // #include <freertos/FreeRTOS.h>
 // #include <freertos/semphr.h>
 
@@ -10,6 +10,7 @@
 
 #include "Button.hpp"
 #include "JoyStick.hpp"
+#include "SWManager.hpp"
 
 #define IND_BUTTON_PIN 21  // indicator button - on the right
 #define HGBM_BUTTON_PIN 22 // high beam button - on the left
@@ -24,6 +25,7 @@ Button *indBt;
 Button *hgBmBt;
 
 JoyStick *joyStk;
+SWManager *swManager;
 
 void setup()
 {
@@ -33,9 +35,9 @@ void setup()
   hgBmBt = new Button("highbeam_button", HGBM_BUTTON_PIN, BUTTON_INTERVAL);
 
   joyStk = new JoyStick("JoyStick", x_JOYSTICK_PIN, y_JOYSTICK_PIN, SW_JOYSTICK_PIN);
+  swManager = new SWManager(indBt,hgBmBt,joyStk);
 
-  // xTaskCreate();
-  joyStk->SetReadMode(ON);
+
 }
 
 // testing
@@ -45,11 +47,5 @@ Direction preDirection = UNKNOWN;
 
 void loop()
 {
-  Direction direction = joyStk->GetDirection();
-
-  if (preDirection != direction)
-  {
-    preDirection = direction;
-    Serial.println(direction);
-  }
-}
+  
+} 

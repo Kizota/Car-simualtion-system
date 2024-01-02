@@ -1,8 +1,19 @@
 #ifndef SWMANAGER_HPP
 #define SWMANAGER_HPP
 
+#include "CANController.h"
+
 #include "Button.hpp"
 #include "JoyStick.hpp"
+#include "StateControl.hpp"
+
+/*!SECTION
+//TODO
+1. optimize handle send command to indicator process
+2. implement queue as receive a sequence of commands
+3. debounce directions result -> stable and less spamming message
+
+*/
 
 enum CommandState
 {
@@ -11,80 +22,178 @@ enum CommandState
     DONE
 };
 
+enum HandleSetModeState
+{
+    WAIT,
+    CHECK_SETTING,
+};
+
+enum IndicatorType
+{
+    LEFT_IND,
+    RIGHT_IND
+};
+
 class SWManager
 {
 private:
-    Button *indBt;  // indicator button
-    Button *hgBmBt; // high beam button
+    Button *indBt;    // indicator button
+    Button *hgBmBt;   // high beam button
+    JoyStick *joyStk; // joystick
+
+    // RTOS
     SemaphoreHandle_t commandMutex;
 
-    JoyStick *joyStk;
+    // CAN
+    ISender *sender;
 
 public:
-    SWManager(Button *, Button *, JoyStick *joyStick);
+    SWManager(Button *, Button *, JoyStick *);
 
+    void SetSender(ISender *sender);
+
+private:
     // handle read configured mode
     static void HandleSettingMode(void *parameter)
     {
         SWManager *sw = static_cast<SWManager *>(parameter);
-
         while (1)
         {
+
             if (sw->indBt->IsPressed())
             {
                 // call indicator button handling
-                //   xTaskCreate();
+                Serial.println("indicator task is");
+                xTaskCreate(SWManager::HandleIndicatorCommand, "Indiciator command", stackDepth, sw, 2, NULL);
             }
             else if (sw->hgBmBt->IsPressed())
             {
-                
             }
+            else if (sw->joyStk->IsPressed())
+            {
+            }
+
+            vTaskDelay(10 / portTICK_PERIOD_MS);
         }
     }
 
-    static void HandleIndicatorSet(void *parameter)
+    static void HandleIndicatorCommand(void *parameter)
     {
         SWManager *sw = static_cast<SWManager *>(parameter);
-        CommandState state = RUN;
-        Direction direction = UNKNOWN;
-
+        CommandState state = TRIGGER;
+        Direction preDirect = UNKNOWN;
+        Direction direct = UNKNOWN;
+        StateControl<Direction> control(UNKNOWN, UNKNOWN);
         while (1)
         {
             switch (state)
             {
+
             case TRIGGER:
+
                 if (xSemaphoreTake(sw->commandMutex, portMAX_DELAY) == pdTRUE)
                 {
-                    //turn on joystick reading 
+                    // if (sw->sender != nullptr)
+                    // {
+
+                    // turn on joystick reading
+                    Serial.println("indicator task is trigger!");
+                    sw->joyStk->SetReadMode(ON);
                     state = RUN;
+                    // }
+                    // else
+                    // {
+                    //     state = DONE;
+                    // }
                 }
-           
+
                 break;
             case RUN:
                 // detect and send command
-                direction = sw->joyStk->GetDirection();
-               
-                switch (direction)
+                control.UpdateState(sw->joyStk->GetDirection());
+                direct = sw->joyStk->GetDirection();
+                
+                if (direct != preDirect)
+                {
+                    Serial.println(direct);
+                    preDirect = direct;
+                }
+
+                switch (control.GetState(false))
                 {
                 case LEFT:
-                    // send command to the left
+                    if (control.GetState(true) == RIGHT)
+                    // turn off the right if on
+                    {
+                        // sw->sender->SendMessage(NODE_ID_RIGHTBLINKER, COMMAND_OFF);
+                    }
+
+                    if (control.IsNewState())
+                    /// turn on the left if off
+                    {
+                        Serial.println("turn left indicator on");
+                        //  sw->sender->SendMessage(NODE_ID_LEFTBLINKER, COMMAND_ON);
+                        control.Refresh();
+                    }
                     break;
                 case RIGHT:
+                    if (control.GetState(true) == LEFT)
+                    // turn off the left if on
+                    {
+                        //  sw->sender->SendMessage(NODE_ID_LEFTBLINKER, COMMAND_OFF);
+                    }
 
+                    if (control.IsNewState())
+                    // turn onn the right if off
+                    {
+                        Serial.println("turn right indicator on");
+                        // sw->sender->SendMessage(NODE_ID_RIGHTBLINKER, COMMAND_ON);
+                        control.Refresh();
+                    }
+                case CENTRE:
+                    if (control.IsNewState() && sw->joyStk->IsPressed())
+                    // turn off both
+                    {
+                        Serial.println("turn off both indicators");
+                        // sw->sender->SendMessage(NODE_ID_RIGHTBLINKER, COMMAND_OFF);
+                        // sw->sender->SendMessage(NODE_ID_LEFTBLINKER, COMMAND_OFF);
+                        control.Refresh();
+                    }
                     break;
                 }
 
-                if (!sw->indBt->IsPressed())
+                // cancel task
+                if (!sw->indBt->IsHold())
                 {
                     state = DONE;
                 }
                 break;
             case DONE:
-            
-               //turn off joystick reading 
+                Serial.println("indicator task is done!");
+                // turn off joystick reading
+                sw->joyStk->SetReadMode(OFF);
                 xSemaphoreGive(sw->commandMutex);
+                vTaskDelete(NULL);
                 break;
             }
+        }
+    }
+
+    static void HandleHighBeamIndicator(void *parameter)
+    {
+        SWManager *sw = static_cast<SWManager *>(parameter);
+        CommandState state = TRIGGER;
+        Timer timer(500); // interval for changing the light
+
+        StateControl<Direction> control(UNKNOWN, UNKNOWN);
+        switch (state)
+        {
+        case TRIGGER:
+            break;
+        case RUN:
+            break;
+        case DONE:
+            break;
         }
     }
 };

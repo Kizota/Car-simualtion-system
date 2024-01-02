@@ -19,6 +19,9 @@ Button::~Button()
   // free mutex
   xSemaphoreGive(readMutex);
   vSemaphoreDelete(readMutex);
+
+  // turn off reading task
+  readTaskHandler->SetMode(OFF);
 }
 
 void Button::SetReadMode(TaskMode mode)
@@ -26,17 +29,25 @@ void Button::SetReadMode(TaskMode mode)
   readTaskHandler->SetMode(mode);
 }
 
-// thread safe sema
 bool Button::IsPressed()
 {
-  bool isPressed = false;
+  bool state = isPressed;
+  isPressed = false;
+
+  return state;
+}
+
+// thread safe sema
+bool Button::IsHold()
+{
+  bool IsHold = false;
   // only read when is not updated
 
   if (xSemaphoreTake(readMutex, portMAX_DELAY))
   {
-    isPressed = (state == LOW);
+    IsHold = (state == LOW);
     xSemaphoreGive(readMutex);
   }
 
-  return isPressed;
+  return IsHold;
 }
