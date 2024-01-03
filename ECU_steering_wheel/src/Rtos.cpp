@@ -23,6 +23,7 @@ void TaskHandler::SetMode(TaskMode newMode)
         if (IsNewMode())
         // turn off task
         {
+            FreeAllMutex();
             vTaskDelete(handler);
             handler = NULL;
             Refresh();
@@ -40,4 +41,20 @@ bool TaskHandler::IsNewMode()
 void TaskHandler::Refresh()
 {
     preMode = mode;
+}
+
+void TaskHandler::AddMutex(SemaphoreHandle_t newMutex)
+{
+    mutexes.push_back(newMutex);
+}
+
+void TaskHandler::FreeAllMutex()
+{
+    // give all mutex
+    for (auto mutex : mutexes)
+    {
+        //only free 
+        if (uxSemaphoreGetCount(mutex) == 0)
+            xSemaphoreGive(mutex);
+    }
 }

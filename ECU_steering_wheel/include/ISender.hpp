@@ -36,8 +36,8 @@ enum CANCommand
 class ISender
 {
 public:
-    virtual bool SendMessage(uint8_t msgId, float value) = 0;
-    virtual bool SendMessage(uint8_t msgId, int value) = 0;
+    virtual void SendMessage(uint8_t msgId, float value) = 0;
+    virtual void SendMessage(uint8_t msgId, int value) = 0;
 };
 
 #endif

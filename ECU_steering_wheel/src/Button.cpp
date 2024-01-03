@@ -9,6 +9,7 @@ Button::Button(std::string name, int pin, uint32_t interval) : name(name), pin(p
   // RTOS
   readMutex = xSemaphoreCreateMutex();
   readTaskHandler = new TaskHandler(name, Button::ReadSignal, this);
+  readTaskHandler->AddMutex(readMutex);
 }
 
 Button::~Button()
@@ -16,16 +17,15 @@ Button::~Button()
   // free the timer memory
   delete timer;
 
-  // free mutex
-  xSemaphoreGive(readMutex);
-  vSemaphoreDelete(readMutex);
-
+  //REVIEW  free mutex how can be sure that mutex below to the current and free 
+  // give the mutex if it is nor given yet
   // turn off reading task
   readTaskHandler->SetMode(OFF);
 }
 
 void Button::SetReadMode(TaskMode mode)
 {
+  // give the mutex if it is nor given yet
   readTaskHandler->SetMode(mode);
 }
 

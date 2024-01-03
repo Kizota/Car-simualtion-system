@@ -16,8 +16,7 @@ const uint16_t tolerant = 150;
 
 /*
   //TODO - improve code
-    1. applied modulal read for analog
-    2. debounce direction result
+      1. check read threadsafe with mutex or binary / how to remove and delete mutex
 
 */
 
@@ -83,6 +82,7 @@ private:
 
             if (xSemaphoreTake(js->readMutex, portMAX_DELAY))
             {
+
                 uint16_t xReading = js->xReader.AnalogRead();
                 uint16_t yReading = js->yReader.AnalogRead();
                 xSemaphoreGive(js->readMutex);

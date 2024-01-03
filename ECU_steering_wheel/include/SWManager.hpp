@@ -81,8 +81,10 @@ private:
     {
         SWManager *sw = static_cast<SWManager *>(parameter);
         CommandState state = TRIGGER;
+       
         Direction preDirect = UNKNOWN;
         Direction direct = UNKNOWN;
+
         StateControl<Direction> control(UNKNOWN, UNKNOWN);
         while (1)
         {
@@ -93,46 +95,45 @@ private:
 
                 if (xSemaphoreTake(sw->commandMutex, portMAX_DELAY) == pdTRUE)
                 {
-                    // if (sw->sender != nullptr)
-                    // {
+                    if (sw->sender != nullptr)
+                    {
 
                     // turn on joystick reading
                     Serial.println("indicator task is trigger!");
                     sw->joyStk->SetReadMode(ON);
                     state = RUN;
-                    // }
-                    // else
-                    // {
-                    //     state = DONE;
-                    // }
+                    }
+                    else
+                    {
+                        Serial.println("sender is not available!");
+                        state = DONE;
+                    }
                 }
 
                 break;
             case RUN:
                 // detect and send command
-                control.UpdateState(sw->joyStk->GetDirection());
-                direct = sw->joyStk->GetDirection();
-                
-                if (direct != preDirect)
+                control.UpdateState(sw->joyStk->GetDirection());              
+                direct =sw->joyStk->GetDirection();
+                if(preDirect!= direct)
                 {
                     Serial.println(direct);
                     preDirect = direct;
                 }
-
                 switch (control.GetState(false))
                 {
                 case LEFT:
                     if (control.GetState(true) == RIGHT)
                     // turn off the right if on
                     {
-                        // sw->sender->SendMessage(NODE_ID_RIGHTBLINKER, COMMAND_OFF);
+                        sw->sender->SendMessage(NODE_ID_RIGHTBLINKER, COMMAND_OFF);
                     }
 
                     if (control.IsNewState())
                     /// turn on the left if off
                     {
                         Serial.println("turn left indicator on");
-                        //  sw->sender->SendMessage(NODE_ID_LEFTBLINKER, COMMAND_ON);
+                        sw->sender->SendMessage(NODE_ID_LEFTBLINKER, COMMAND_ON);
                         control.Refresh();
                     }
                     break;
@@ -140,14 +141,14 @@ private:
                     if (control.GetState(true) == LEFT)
                     // turn off the left if on
                     {
-                        //  sw->sender->SendMessage(NODE_ID_LEFTBLINKER, COMMAND_OFF);
+                        sw->sender->SendMessage(NODE_ID_LEFTBLINKER, COMMAND_OFF);
                     }
 
                     if (control.IsNewState())
                     // turn onn the right if off
                     {
                         Serial.println("turn right indicator on");
-                        // sw->sender->SendMessage(NODE_ID_RIGHTBLINKER, COMMAND_ON);
+                        sw->sender->SendMessage(NODE_ID_RIGHTBLINKER, COMMAND_ON);
                         control.Refresh();
                     }
                 case CENTRE:
@@ -155,8 +156,8 @@ private:
                     // turn off both
                     {
                         Serial.println("turn off both indicators");
-                        // sw->sender->SendMessage(NODE_ID_RIGHTBLINKER, COMMAND_OFF);
-                        // sw->sender->SendMessage(NODE_ID_LEFTBLINKER, COMMAND_OFF);
+                        sw->sender->SendMessage(NODE_ID_RIGHTBLINKER, COMMAND_OFF);
+                        sw->sender->SendMessage(NODE_ID_LEFTBLINKER, COMMAND_OFF);
                         control.Refresh();
                     }
                     break;

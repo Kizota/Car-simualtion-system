@@ -6,8 +6,9 @@ JoyStick::JoyStick(std::string name, int xPin, int yPin, int swPin) : name(name)
     swBt = new Button("sw_joystick", swPin, 50);
 
     // RTOS
-    readMutex = xSemaphoreCreateMutex();
+    readMutex = xSemaphoreCreateBinary();
     handler = new TaskHandler(name, JoyStick::ReadSignals, this);
+    handler->AddMutex(readMutex);
 }
 
 JoyStick::~JoyStick()
@@ -58,11 +59,8 @@ AxisState JoyStick::GetAxisState(Axis_t type)
 Direction JoyStick::GetDirection()
 {
 
-  
-   
-        AxisState xState = GetAxisState(X);
-        AxisState yState = GetAxisState(Y);
-    
+    AxisState xState = GetAxisState(X);
+    AxisState yState = GetAxisState(Y);
 
     if (xState == START && (yState == MIDDLE || yState == END))
     // left
@@ -95,7 +93,9 @@ Direction JoyStick::GetDirection()
 
 void JoyStick::SetReadMode(TaskMode mode)
 {
-    // turn on read task
+    
+// turn on read task
     handler->SetMode(mode);
     swBt->SetReadMode(mode);
 }
+

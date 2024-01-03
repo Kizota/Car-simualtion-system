@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <string>
+#include <list>
 
 #include <freertos/FreeRTOS.h>
 #include <freertos/semphr.h>
@@ -20,13 +21,19 @@ enum TaskMode
 class TaskHandler
 {
 private:
+    //keep track on task status
     TaskMode mode;
     TaskMode preMode;
 
+    //task data
     std::string name;
-    void *param; //
+    void *param; 
     TaskFunction_t task;
     TaskHandle_t handler;
+    
+    //taskSemaphore list
+    std::list<SemaphoreHandle_t> mutexes;
+
 
 public:
     TaskHandler(std::string name, TaskFunction_t, void *param);
@@ -36,6 +43,11 @@ public:
     bool IsNewMode();
 
     void Refresh();
+
+    void AddMutex(SemaphoreHandle_t);
+
+    void FreeAllMutex();
+
 };
 
 #endif
