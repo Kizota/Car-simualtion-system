@@ -84,7 +84,8 @@ private:
        
         Direction preDirect = UNKNOWN;
         Direction direct = UNKNOWN;
-
+        
+        //state of reading command from joystick
         StateControl<Direction> control(UNKNOWN, UNKNOWN);
         while (1)
         {

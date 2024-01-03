@@ -26,10 +26,9 @@ private:
     // read data
     uint8_t preState;
     uint8_t state;
-    
-    //
     bool isPressed;
-
+    
+    //timer for debouncing
     Timer *timer;
     
     //RTOS

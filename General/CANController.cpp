@@ -10,7 +10,7 @@ CANController::CANController(uint8_t CAN_INT, uint8_t CAN_CS) : CAN(CAN_CS), CAN
 
   // set CAN mode
   CAN.setMode(MCP_NORMAL);
-  pinMode(CAN_INT, INPUT);
+ // pinMode(CAN_INT, INPUT); - //REVIEW - implement wit htinerrrupt later
 
   Serial.println("CAN Bus init ok!\n");
 }

@@ -1,7 +1,6 @@
 #ifndef STATECONTROL_HPP
 #define STATECONTROL_HPP
 
-//TODO - checking why method could not be define seperately in the src - undefine refference error 
 template <typename T>
 class StateControl
 {
@@ -14,12 +13,14 @@ public:
     {
     }
 
-    T GetState(bool takeLast)
+    T GetState()
     {
-        if (takeLast)
-            return preState;
-
         return state;
+    }
+
+    T GetPreState()
+    {
+        return preState;
     }
     bool IsNewState()
     {
@@ -34,7 +35,7 @@ public:
 
     void UpdateState(T newState)
     {
-         state = newState;
+        state = newState;
     }
 };
 

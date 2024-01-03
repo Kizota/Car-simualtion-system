@@ -31,31 +31,31 @@ JoyStick *joyStk;
 SWManager *swManager;
 CANController *canController;
 
+MCP_CAN CAN(CS_PIN);
+
 void setup()
 {
   Serial.begin(9600);
 
-  //steering wheels components
+  // //steering wheels components
   indBt = new Button("indicator_button", IND_BUTTON_PIN, BUTTON_INTERVAL);
   hgBmBt = new Button("highbeam_button", HGBM_BUTTON_PIN, BUTTON_INTERVAL);
   joyStk = new JoyStick("JoyStick", x_JOYSTICK_PIN, y_JOYSTICK_PIN, SW_JOYSTICK_PIN);
-  
-  //manager class
-  canController = new CANController(INT_PIN,CS_PIN);
-  swManager = new SWManager(indBt,hgBmBt,joyStk);
-  
-  //set message sender for the steering wheel manager
-  swManager->SetSender((ISender*)canController);
 
- // vTaskStartScheduler();
+  // manager class
+  canController = new CANController(INT_PIN, CS_PIN);
+  swManager = new SWManager(indBt, hgBmBt, joyStk);
+
+  // //set message sender for the steering wheel manager
+   swManager->SetSender((ISender*)canController);
+
+  // vTaskStartScheduler();
+
+  // connect to CAN network
 }
-
-// testing
-Timer testTimer(1000);
-bool taskState = false;
-Direction preDirection = UNKNOWN;
-
 void loop()
 {
-  vTaskDelay(100/portTICK_PERIOD_MS);
-} 
+  // test
+
+  vTaskDelay(100 / portTICK_PERIOD_MS);
+}
