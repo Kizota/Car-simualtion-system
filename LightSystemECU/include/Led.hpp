@@ -29,10 +29,10 @@ enum BlinkingLedState
 
 enum Tendency
 {
-    IDLE = -1,
+    IDLE = 2,
     DECREASE = 0,
     INCREASE = 1
-    
+
 };
 
 class Led
@@ -47,7 +47,7 @@ public:
     Led(std::string name, uint8_t pin);
 
     // turn the led following the new indicated state without duplication - exp: won't send turn on led 2 times continuously
-    bool Turn(LedState);
+    void Turn(LedState);
 
     //
     bool SetBrightness(uint8_t);
@@ -125,12 +125,13 @@ public:
     static void Tweaking(void *parameter)
     {
 
-        TweakingLed *led = static_cast<TweakingLed *>(led);
+        TweakingLed *led = static_cast<TweakingLed *>(parameter);
         Tendency tendency = IDLE;
 
         while (1)
         {
-            if (xQueueReceive(led->tweakingQueue, (void *)&tendency, portTICK_PERIOD_MS))
+
+            if (xQueueReceive(led->tweakingQueue, (void *)&tendency, portMAX_DELAY))
             {
                 led->TweakingLightLevel(tendency);
             }

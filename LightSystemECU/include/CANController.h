@@ -31,7 +31,9 @@ private:
   QueueHandle_t rcdDatas; // recieved message queue
 
 public:
-  CANController(uint8_t CAN_INT, uint8_t CAN_CS);
+  CANController(uint8_t CAN_INT, uint8_t CAN_CS,ICanListener *listener);
+
+  bool AddListener(ICanListener*);
 
   bool AddIdMask(unsigned long idMask);
 
@@ -88,7 +90,6 @@ private:
   {
 
     CANController *controller = static_cast<CANController *>(parameter);
-
     if (controller->listener == nullptr)
     // cancelling the task if listener is not
     {
@@ -102,6 +103,7 @@ private:
       if (newData.msgId != 0 && controller->IsMessageIdValid(newData.msgId))
       // only call listener to handle the message, when it is valid
       {
+        Serial.print("id valid: ");
         Serial.println(newData.msgId);
         controller->listener->RecieveMessage(newData);
       }
@@ -111,7 +113,6 @@ private:
     }
   }
 };
-
 
 //  if (newData.msgId != 0)
 //       // only call listener to handle the message, when it is valid

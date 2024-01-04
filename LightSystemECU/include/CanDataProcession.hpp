@@ -45,8 +45,8 @@ enum CANCommand
 
 enum LighSystemCommand
 {
-    LEFT_INDICATOR = 0,
-    RIGHT_INDICATOR = 1,
+    LEFT_IND_ON= 0,
+    RIGHT_IND_ON = 1,
     BOTH_OFF = 2
 };
 

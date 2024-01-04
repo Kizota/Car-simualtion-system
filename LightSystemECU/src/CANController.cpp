@@ -2,7 +2,7 @@
 #include <algorithm>
 
 // CANController constructor
-CANController::CANController(uint8_t CAN_INT, uint8_t CAN_CS) : CAN(CAN_CS), CAN_INT(CAN_INT), listener()
+CANController::CANController(uint8_t CAN_INT, uint8_t CAN_CS,ICanListener *listener) : CAN(CAN_CS), CAN_INT(CAN_INT), listener(listener)
 {
   Serial.println("can controll constructor");
   // connect to CAN network
@@ -21,7 +21,18 @@ CANController::CANController(uint8_t CAN_INT, uint8_t CAN_CS) : CAN(CAN_CS), CAN
   // create queue to store and task to send the messages
   sendDatas = xQueueCreate(10, sizeof(CanData));
   xTaskCreate(CANController::SendMessageTask, "SendMessageTask", stackDepth, this, 1, NULL);
-   xTaskCreate(CANController::ReadMessageTask,"ReadMessageTask",stackDepth,this,1,NULL);
+  xTaskCreate(CANController::ReadMessageTask, "ReadMessageTask", stackDepth, this, 1, NULL);
+}
+
+bool CANController::AddListener(ICanListener *listener)
+{
+  if (listener != nullptr)
+  {
+    return false;
+  }
+
+  listener = listener;
+  return true;
 }
 
 bool CANController::AddIdMask(unsigned long idMask)
@@ -59,8 +70,14 @@ CanData CANController::ReadMessage()
   // if (!digitalRead(CAN_INT))
   if (CAN_MSGAVAIL == CAN.checkReceive())
   {
-    Serial.println("recieved new data");
     CAN.readMsgBuf(&data.msgId, &data.len, data.command);
+    Serial.print("msg id:");
+    Serial.println(data.msgId);
+    Serial.print("msg len:");
+    Serial.println(data.len);
+    Serial.print("msg command:");
+    Serial.println(data.command[0]);
+
     return data;
   }
   return CanData(); // Return a default-constructed CanData object if no message is available

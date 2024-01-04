@@ -7,6 +7,12 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/semphr.h"
 
+/*
+//REVIEW - opitimize code
+  1. seperate two task of handling ind and high beam into 2 tasks
+  2. why could not pass by &
+*/
+
 class LSManager : public ICanListener
 {
 private:
@@ -32,18 +38,21 @@ private:
     {
         LSManager *lsManager = static_cast<LSManager *>(parameter);
         CanData rcdData;
-
         while (1)
         {
             if (xQueueReceive(lsManager->rcdCmdQueue, (void *)&rcdData, portMAX_DELAY))
             {
+                Serial.println("haha in reading command task");
+
                 switch (rcdData.msgId)
                 {
                 case NODE_ID_INDICATOR:
-                    HandleIndicatorCommand(rcdData.command[0], lsManager->leftInd, lsManager->rightInd);
+                    // lsManager->leftInd.SetBlinking(RealTime::ON);
+                    lsManager->rightInd.SetBlinking(RealTime::ON);
+                    HandleIndicatorCommand(rcdData.command[0], &lsManager->leftInd, &lsManager->rightInd);
                     break;
                 case NODE_ID_HIGHBEAM:
-                    HandleHighHBeamCommand(rcdData.command[0], lsManager->highBm);
+                    HandleHighHBeamCommand(rcdData.command[0], &lsManager->highBm);
                     break;
                 }
             }
@@ -51,32 +60,34 @@ private:
         }
     }
 
-    static bool HandleIndicatorCommand(byte command, BlinkingLed &leftInd, BlinkingLed &rightInd)
+    static bool HandleIndicatorCommand(byte command, BlinkingLed *leftInd, BlinkingLed *rightInd)
     {
-        //checking if command is out of range 
-        if (command < LEFT_INDICATOR || command > BOTH_OFF)
+        // checking if command is out of range
+        if (command < LEFT_IND_ON || command > BOTH_OFF)
         {
             return false;
         }
 
         LighSystemCommand cmd = static_cast<LighSystemCommand>(command);
-        
-        //turn on and off indiccators according to the command
+
+        // turn on and off indiccators according to the command
         switch (cmd)
         {
-        case LEFT_INDICATOR:
-            leftInd.SetBlinking(RealTime::ON);
-            rightInd.SetBlinking(RealTime::OFF);
+        case LEFT_IND_ON:
+            leftInd->SetBlinking(RealTime::ON);
+            rightInd->SetBlinking(RealTime::OFF);
 
             break;
-        case RIGHT_INDICATOR:
-            leftInd.SetBlinking(RealTime::OFF);
-            rightInd.SetBlinking(RealTime::ON);
+        case RIGHT_IND_ON:
+            Serial.println("right indicator");
+
+            leftInd->SetBlinking(RealTime::OFF);
+            rightInd->SetBlinking(RealTime::ON);
 
             break;
         case BOTH_OFF:
-            leftInd.SetBlinking(RealTime::OFF);
-            rightInd.SetBlinking(RealTime::OFF);
+            leftInd->SetBlinking(RealTime::OFF);
+            rightInd->SetBlinking(RealTime::OFF);
             break;
         }
 
@@ -84,7 +95,7 @@ private:
     }
 
     static bool
-    HandleHighHBeamCommand(byte command, TweakingLed &highBm)
+    HandleHighHBeamCommand(byte command, TweakingLed *highBm)
     {
         if (command < INCREASE || command > DECREASE)
         {
@@ -93,7 +104,7 @@ private:
 
         // add tweaking cmd to regulate the brightness of the high beam
         Tendency tendency = static_cast<Tendency>(command);
-        return highBm.AddTweakingCommand(tendency);
+        return highBm->AddTweakingCommand(tendency);
     }
 };
 

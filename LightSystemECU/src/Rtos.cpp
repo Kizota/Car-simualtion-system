@@ -3,7 +3,7 @@
 
 namespace RealTime
 {
-    TaskHandler::TaskHandler(std::string name, TaskFunction_t task, void *param) : name(name), task(task), param(param), mode(VOID), preMode(VOID)
+    TaskHandler::TaskHandler(std::string name, TaskFunction_t task, void *param) : name(name), task(task), param(param), handler(NULL), mode(VOID), preMode(VOID)
     {
     }
 
@@ -22,9 +22,10 @@ namespace RealTime
 
             break;
         case OFF:
-            if (IsNewMode())
+            if (IsNewMode() && handler!= NULL)
             // turn off task
             {
+                Serial.println("turn off task");
                 FreeAllMutex();
                 vTaskDelete(handler);
                 handler = NULL;

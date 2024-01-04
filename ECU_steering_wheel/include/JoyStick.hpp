@@ -12,7 +12,7 @@
 #define MID_ANALOG_VAL 3100
 #define MIN_ANALOG_VAL 0
 
-const uint16_t tolerant = 150;
+const uint16_t tolerant = 200;
 
 /*
   //TODO - improve code
@@ -85,6 +85,7 @@ private:
 
                 uint16_t xReading = js->xReader.AnalogRead();
                 uint16_t yReading = js->yReader.AnalogRead();
+             //   Serial.println(yReading);
                 xSemaphoreGive(js->readMutex);
             }
 

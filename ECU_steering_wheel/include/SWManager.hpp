@@ -124,32 +124,20 @@ private:
                 switch (control.GetState(false))
                 {
                 case LEFT:
-                    if (control.GetState(true) == RIGHT)
-                    // turn off the right if on
-                    {
-                        sw->sender->SendMessage(NODE_ID_RIGHTBLINKER, COMMAND_OFF);
-                    }
-
                     if (control.IsNewState())
                     /// turn on the left if off
                     {
                         Serial.println("turn left indicator on");
-                        sw->sender->SendMessage(NODE_ID_LEFTBLINKER, COMMAND_ON);
+                        sw->sender->SendMessage(NODE_ID_INDICATOR, LEFT_IND_ON);
                         control.Refresh();
                     }
                     break;
                 case RIGHT:
-                    if (control.GetState(true) == LEFT)
-                    // turn off the left if on
-                    {
-                        sw->sender->SendMessage(NODE_ID_LEFTBLINKER, COMMAND_OFF);
-                    }
-
                     if (control.IsNewState())
                     // turn onn the right if off
                     {
                         Serial.println("turn right indicator on");
-                        sw->sender->SendMessage(NODE_ID_RIGHTBLINKER, COMMAND_ON);
+                        sw->sender->SendMessage(NODE_ID_INDICATOR, RIGHT_IND_ON);
                         control.Refresh();
                     }
                 case CENTRE:
@@ -157,8 +145,8 @@ private:
                     // turn off both
                     {
                         Serial.println("turn off both indicators");
-                        sw->sender->SendMessage(NODE_ID_RIGHTBLINKER, COMMAND_OFF);
-                        sw->sender->SendMessage(NODE_ID_LEFTBLINKER, COMMAND_OFF);
+                        sw->sender->SendMessage(NODE_ID_INDICATOR, BOTH_OFF);
+
                         control.Refresh();
                     }
                     break;
