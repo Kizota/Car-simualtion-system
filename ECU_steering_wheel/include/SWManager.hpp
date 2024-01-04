@@ -81,11 +81,11 @@ private:
     {
         SWManager *sw = static_cast<SWManager *>(parameter);
         CommandState state = TRIGGER;
-       
+
         Direction preDirect = UNKNOWN;
         Direction direct = UNKNOWN;
-        
-        //state of reading command from joystick
+
+        // state of reading command from joystick
         StateControl<Direction> control(UNKNOWN, UNKNOWN);
         while (1)
         {
@@ -99,10 +99,10 @@ private:
                     if (sw->sender != nullptr)
                     {
 
-                    // turn on joystick reading
-                    Serial.println("indicator task is trigger!");
-                    sw->joyStk->SetReadMode(ON);
-                    state = RUN;
+                        // turn on joystick reading
+                        Serial.println("indicator task is trigger!");
+                        sw->joyStk->SetReadMode(ON);
+                        state = RUN;
                     }
                     else
                     {
@@ -114,9 +114,9 @@ private:
                 break;
             case RUN:
                 // detect and send command
-                control.UpdateState(sw->joyStk->GetDirection());              
-                direct =sw->joyStk->GetDirection();
-                if(preDirect!= direct)
+                control.UpdateState(sw->joyStk->GetDirection());
+                direct = sw->joyStk->GetDirection();
+                if (preDirect != direct)
                 {
                     Serial.println(direct);
                     preDirect = direct;

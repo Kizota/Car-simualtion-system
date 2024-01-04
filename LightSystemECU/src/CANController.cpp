@@ -2,7 +2,7 @@
 #include <algorithm>
 
 // CANController constructor
-CANController::CANController(uint8_t CAN_INT, uint8_t CAN_CS) : CAN(CAN_CS), CAN_INT(CAN_INT)
+CANController::CANController(uint8_t CAN_INT, uint8_t CAN_CS) : CAN(CAN_CS), CAN_INT(CAN_INT), listener()
 {
   Serial.println("can controll constructor");
   // connect to CAN network

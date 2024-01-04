@@ -28,6 +28,7 @@ private:
 
   // RTOS
   QueueHandle_t sendDatas;
+  QueueHandle_t rcdDatas; // recieved message queue
 
 public:
   CANController(uint8_t CAN_INT, uint8_t CAN_CS);
@@ -82,29 +83,40 @@ private:
     }
   }
 
+  // REVIEW - check optimize the code
   static void ReadMessageTask(void *parameter)
   {
+
     CANController *controller = static_cast<CANController *>(parameter);
+
+    if (controller->listener == nullptr)
+    // cancelling the task if listener is not
+    {
+      vTaskDelete(NULL);
+      return;
+    }
+
     while (1)
     {
       CanData newData = controller->ReadMessage();
-      
-       if (newData.msgId != 0)
+      if (newData.msgId != 0 && controller->IsMessageIdValid(newData.msgId))
       // only call listener to handle the message, when it is valid
       {
         Serial.println(newData.msgId);
-        //controller->listener->RecieveMessage(newData);
+        controller->listener->RecieveMessage(newData);
       }
-
-      // if (newData.msgId != 0 && controller->IsMessageIdValid(newData.msgId))
-      // // only call listener to handle the message, when it is valid
-      // {
-      //   Serial.println(newData.msgId);
-      //   //controller->listener->RecieveMessage(newData);
-      // }
 
       // yield time for the other task - stop trigger dog - try taskScheduler
       vTaskDelay(10 / portTICK_PERIOD_MS);
     }
   }
 };
+
+
+//  if (newData.msgId != 0)
+//       // only call listener to handle the message, when it is valid
+//       {
+//         Serial.println(newData.msgId);
+//         Serial.println(newData.command[0]);
+//         // controller->listener->RecieveMessage(newData);
+//       }

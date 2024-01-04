@@ -32,17 +32,24 @@ enum MessageID
 // Commands for nodes over CAN
 enum CANCommand
 {
-    COMMAND_OFF,
-    COMMAND_ON,
+    // switch command
+    COMMAND_OFF = 0,
+    COMMAND_ON = 1,
+
+    // tweaking command
+    COMMAND_DOWN = 0,
+    COMMAND_UP = 1,
+
     COMMAND_REQUEST,
 };
 
+enum LighSystemCommand
+{
+    LEFT_INDICATOR = 0,
+    RIGHT_INDICATOR = 1,
+    BOTH_OFF = 2
+};
 
-// enum ReadingState
-// {
-//     WAITING,
-//     READING,
-// };
 
 struct CanData
 {
