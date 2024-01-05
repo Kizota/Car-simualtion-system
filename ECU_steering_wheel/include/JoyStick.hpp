@@ -8,11 +8,11 @@
 
 #include "Button.hpp"
 
-#define MAX_ANALOG_VAL 4095
-#define MID_ANALOG_VAL 3100
+#define MAX_ANALOG_VAL 1023
+#define MID_ANALOG_VAL 510
 #define MIN_ANALOG_VAL 0
 
-const uint16_t tolerant = 200;
+const uint16_t tolerant = 20;
 
 /*
   //TODO - improve code
@@ -50,8 +50,11 @@ class JoyStick
 private:
     std::string name;
     // readed signal
-    AnalogReader xReader;
-    AnalogReader yReader;
+    HardwareSerialReader xReader;
+    HardwareSerialReader yReader;
+
+    // AnalogReader xReader;
+    // AnalogReader yReader;
     Button *swBt;
 
     Direction direction;
@@ -83,9 +86,8 @@ private:
             if (xSemaphoreTake(js->readMutex, portMAX_DELAY))
             {
 
-                uint16_t xReading = js->xReader.AnalogRead();
-                uint16_t yReading = js->yReader.AnalogRead();
-             //   Serial.println(yReading);
+                uint16_t xReading = js->xReader.GetValue();
+                uint16_t yReading = js->yReader.GetValue();
                 xSemaphoreGive(js->readMutex);
             }
 

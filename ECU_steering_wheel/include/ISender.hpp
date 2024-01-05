@@ -6,9 +6,10 @@ enum MessageID
 {
   VOID_ID = -1,
   NODE_ID_INDICATOR = 0x30,
+  NODE_ID_HIGHBEAM = 0x31, // Accepts on or off
+
   NODE_ID_LEFTBLINKER,         // Accepts on or off
   NODE_ID_RIGHTBLINKER,        // Accepts on or off
-  NODE_ID_HIGHBEAM,            // Accepts on or off
   NODE_ID_LOWBEAM,             // Accepts on or off
   NODE_ID_TAILLIGHT,           // Accepts on or off
   NODE_ID_BRAKELIGHT,          // Accepts on or off

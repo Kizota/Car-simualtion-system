@@ -130,9 +130,9 @@ public:
 
         while (1)
         {
-
             if (xQueueReceive(led->tweakingQueue, (void *)&tendency, portMAX_DELAY))
             {
+                Serial.println("read new command for tweaking!");
                 led->TweakingLightLevel(tendency);
             }
 

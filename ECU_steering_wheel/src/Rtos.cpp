@@ -1,7 +1,7 @@
 #include "Rtos.hpp"
 #include <Arduino.h>
 
-TaskHandler::TaskHandler(std::string name, TaskFunction_t task, void *param) : name(name), task(task), param(param), mode(VOID), preMode(VOID)
+TaskHandler::TaskHandler(std::string name, TaskFunction_t task, void *param) : name(name), task(task), param(param), mode(VOID), preMode(VOID), handler(NULL)
 {
 }
 
@@ -20,7 +20,7 @@ void TaskHandler::SetMode(TaskMode newMode)
 
         break;
     case OFF:
-        if (IsNewMode())
+        if (IsNewMode() && handler != NULL)
         // turn off task
         {
             FreeAllMutex();

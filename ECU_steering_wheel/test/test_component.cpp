@@ -64,3 +64,22 @@ void loop()
     preYParam = yParam;
   }
 }
+
+
+// if (numOfByte)
+//   {
+//     for (int i = numOfByte; i >= 0; i--)
+//     {
+//       Serial.println("numOfByte");
+//       Serial.println(numOfByte);
+//       buff[i] = mySerial2.read();
+
+//       Serial.print("byte ");
+//       Serial.print(i);
+//       Serial.print(": ");
+//       Serial.println(buff[i]);
+//     }
+
+//     memcpy((void *)&val, buff, sizeof(int));
+//     Serial.println(val);
+//   }

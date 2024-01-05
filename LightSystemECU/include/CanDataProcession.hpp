@@ -9,9 +9,9 @@ enum MessageID
 {
     VOID_ID = -1,
     NODE_ID_INDICATOR = 0x30,
+    NODE_ID_HIGHBEAM = 0x31, // Accepts on or off
     NODE_ID_LEFTBLINKER,         // Accepts on or off
     NODE_ID_RIGHTBLINKER,        // Accepts on or off
-    NODE_ID_HIGHBEAM,            // Accepts on or off
     NODE_ID_LOWBEAM,             // Accepts on or off
     NODE_ID_TAILLIGHT,           // Accepts on or off
     NODE_ID_BRAKELIGHT,          // Accepts on or off
@@ -45,11 +45,10 @@ enum CANCommand
 
 enum LighSystemCommand
 {
-    LEFT_IND_ON= 0,
+    LEFT_IND_ON = 0,
     RIGHT_IND_ON = 1,
     BOTH_OFF = 2
 };
-
 
 struct CanData
 {

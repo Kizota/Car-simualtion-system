@@ -63,11 +63,11 @@ private:
             if (sw->indBt->IsPressed())
             {
                 // call indicator button handling
-                Serial.println("indicator task is");
-                xTaskCreate(SWManager::HandleIndicatorCommand, "Indiciator command", stackDepth, sw, 2, NULL);
+                xTaskCreate(SWManager::HandleIndicatorCommand, "Indiciator commander", stackDepth, sw, 2, NULL);
             }
             else if (sw->hgBmBt->IsPressed())
             {
+                xTaskCreate(SWManager::HandleHighBeamCommand, "highbeam commander", stackDepth, sw, 2, NULL);
             }
             else if (sw->joyStk->IsPressed())
             {
@@ -91,14 +91,11 @@ private:
         {
             switch (state)
             {
-
             case TRIGGER:
-
                 if (xSemaphoreTake(sw->commandMutex, portMAX_DELAY) == pdTRUE)
                 {
                     if (sw->sender != nullptr)
                     {
-
                         // turn on joystick reading
                         Serial.println("indicator task is trigger!");
                         sw->joyStk->SetReadMode(ON);
@@ -115,12 +112,15 @@ private:
             case RUN:
                 // detect and send command
                 control.UpdateState(sw->joyStk->GetDirection());
+
+                // printing the direction for debugging purpose
                 direct = sw->joyStk->GetDirection();
                 if (preDirect != direct)
                 {
                     Serial.println(direct);
                     preDirect = direct;
                 }
+
                 switch (control.GetState(false))
                 {
                 case LEFT:
@@ -146,7 +146,6 @@ private:
                     {
                         Serial.println("turn off both indicators");
                         sw->sender->SendMessage(NODE_ID_INDICATOR, BOTH_OFF);
-
                         control.Refresh();
                     }
                     break;
@@ -169,21 +168,88 @@ private:
         }
     }
 
-    static void HandleHighBeamIndicator(void *parameter)
+    static void HandleHighBeamCommand(void *parameter)
     {
         SWManager *sw = static_cast<SWManager *>(parameter);
         CommandState state = TRIGGER;
         Timer timer(500); // interval for changing the light
 
         StateControl<Direction> control(UNKNOWN, UNKNOWN);
-        switch (state)
+        while (1)
         {
-        case TRIGGER:
-            break;
-        case RUN:
-            break;
-        case DONE:
-            break;
+            switch (state)
+            {
+            case TRIGGER:
+                if (xSemaphoreTake(sw->commandMutex, portMAX_DELAY) == pdTRUE)
+                {
+                    if (sw->sender != nullptr)
+                    {
+                        // turn on joystick reading
+                        Serial.println("high beam task is trigger!");
+                        sw->joyStk->SetReadMode(ON);
+                        timer.ReFresh();
+                        state = RUN;
+                    }
+                    else
+                    {
+                        Serial.println("sender is not available!");
+                        state = DONE;
+                    }
+                }
+
+                break;
+            case RUN:
+                control.UpdateState(sw->joyStk->GetDirection());
+
+                switch (control.GetState(false))
+                {
+                case UP:
+                    if (control.IsNewState())
+                    {
+                        // refresh the timer when starting to increase the brightness
+                        timer.ReFresh();
+                        control.Refresh();
+                    }
+
+                    if (timer.IsTimeOut())
+                    {
+                        Serial.println("increase high beam brightness!");
+                        sw->sender->SendMessage(NODE_ID_HIGHBEAM, COMMAND_UP);
+                    }
+
+                    break;
+                case DOWN:
+                    if (control.IsNewState())
+                    {
+                        // refresh the timer when starting to decrease the brightness
+                        timer.ReFresh();
+                        control.Refresh();
+                    }
+
+                    if (timer.IsTimeOut())
+                    {
+                        sw->sender->SendMessage(NODE_ID_HIGHBEAM, COMMAND_DOWN);
+                        Serial.println("decrease hgih beam briht ness!");
+                    }
+                    break;
+                }
+
+                // cancel task when button is release
+                if (!sw->hgBmBt->IsHold())
+                {
+                    state = DONE;
+                }
+                break;
+
+            case DONE:
+                Serial.println("high beam task is done!");
+                // turn off joystick reading
+                sw->joyStk->SetReadMode(OFF);
+                xSemaphoreGive(sw->commandMutex);
+                vTaskDelete(NULL);
+
+                break;
+            }
         }
     }
 };

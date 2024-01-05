@@ -2,6 +2,7 @@
 #define MAX_WRITE_ANALOG (uint8_t)255
 #define MIN_WRITE_ANALOG (uint8_t)0
 
+
 Led::Led(std::string name, uint8_t pin) : name(name), pin(pin), state(OFF, OFF)
 {
     // configuration pin
@@ -30,7 +31,7 @@ bool Led::SetBrightness(uint8_t analogVal)
         return false;
     }
 
-    analogRead(analogVal);
+    analogWrite(pin,analogVal);
     return true;
 }
 
@@ -85,7 +86,7 @@ bool TweakingLed::AddTweakingCommand(Tendency tendency)
     {
         return false;
     }
-
+    Serial.println("add tweaking command into queue");
     return xQueueSend(tweakingQueue, (void *)&tendency, portMAX_DELAY);
 }
 
@@ -112,6 +113,7 @@ bool TweakingLed::TweakingLightLevel(Tendency tendency)
     if (newDutyCycle >= MIN_WRITE_ANALOG && newDutyCycle <= MAX_WRITE_ANALOG)
     // only set the light level when the new dutycycle is valid
     {
+        Serial.println(dutyCycle);
         SetBrightness(dutyCycle);
         dutyCycle = newDutyCycle;
         isTweaked = true;

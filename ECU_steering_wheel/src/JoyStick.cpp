@@ -1,10 +1,10 @@
 #include "JoyStick.hpp"
 #define ANALOGREAD_TOLERANT 150
 
-JoyStick::JoyStick(std::string name, int xPin, int yPin, int swPin) : name(name), xReader(xPin, ANALOGREAD_TOLERANT), yReader(yPin, ANALOGREAD_TOLERANT), direction(UNKNOWN)
+JoyStick::JoyStick(std::string name, int xSerial, int ySerial, int swPin) : name(name), xReader(xSerial, ANALOGREAD_TOLERANT), yReader(ySerial, ANALOGREAD_TOLERANT), direction(UNKNOWN)
 {
     swBt = new Button("sw_joystick", swPin, 50);
-
+    
     // RTOS
     readMutex = xSemaphoreCreateBinary();
     handler = new TaskHandler(name, JoyStick::ReadSignals, this);
@@ -31,10 +31,10 @@ AxisState JoyStick::GetAxisState(Axis_t type)
     switch (type)
     {
     case X:
-        param = xReader.val;
+        param = xReader.GetValue();
         break;
     case Y:
-        param = yReader.val;
+        param = yReader.GetValue();
         break;
     }
 
@@ -62,27 +62,27 @@ Direction JoyStick::GetDirection()
     AxisState xState = GetAxisState(X);
     AxisState yState = GetAxisState(Y);
 
-    if (xState == START && (yState == MIDDLE || yState == END))
+    if (xState == START && yState == MIDDLE)
     // left
     {
         direction = LEFT;
     }
-    else if (xState == END && (yState == MIDDLE || yState == END))
+    else if (xState == END && yState == MIDDLE)
     // right
     {
         direction = RIGHT;
     }
-    else if ((xState == MIDDLE || xState == END) && yState == START)
+    else if (xState == MIDDLE && yState == END)
     // UP
     {
         direction = UP;
     }
-    else if ((xState == MIDDLE || xState == END) && yState == END)
+    else if (xState == MIDDLE && yState == START)
     // down
     {
         direction = DOWN;
     }
-    else if ((xState == MIDDLE || xState == END) && yState == MIDDLE)
+    else if (xState == MIDDLE && yState == MIDDLE)
     // centre
     {
         direction = CENTRE;
@@ -93,9 +93,8 @@ Direction JoyStick::GetDirection()
 
 void JoyStick::SetReadMode(TaskMode mode)
 {
-    
-// turn on read task
+
+    // turn on read task
     handler->SetMode(mode);
     swBt->SetReadMode(mode);
 }
-

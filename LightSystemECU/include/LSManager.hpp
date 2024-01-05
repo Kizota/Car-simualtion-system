@@ -52,6 +52,7 @@ private:
                     HandleIndicatorCommand(rcdData.command[0], &lsManager->leftInd, &lsManager->rightInd);
                     break;
                 case NODE_ID_HIGHBEAM:
+                    Serial.println("recieve command for high beam");
                     HandleHighHBeamCommand(rcdData.command[0], &lsManager->highBm);
                     break;
                 }
@@ -97,11 +98,12 @@ private:
     static bool
     HandleHighHBeamCommand(byte command, TweakingLed *highBm)
     {
-        if (command < INCREASE || command > DECREASE)
+        if (command < DECREASE || command > INCREASE)
         {
+            Serial.println("sth wrong with the command !");
             return false;
         }
-
+        Serial.println("accept command and add the tweaking command");
         // add tweaking cmd to regulate the brightness of the high beam
         Tendency tendency = static_cast<Tendency>(command);
         return highBm->AddTweakingCommand(tendency);
