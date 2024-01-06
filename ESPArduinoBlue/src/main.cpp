@@ -8,10 +8,9 @@
 BLEController BLE(RX_PIN, TX_PIN);
 
 void setup() {
-  Serial.begin(9600);  // Initialize Serial for debugging
 }
 
 void loop() {
   BLE.loopSendBLE();
-  BLE.loopRecieveBLE();
+  // BLE.loopRecieveBLE();
 }
