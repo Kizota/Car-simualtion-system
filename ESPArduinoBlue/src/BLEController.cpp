@@ -12,6 +12,7 @@
 CANController can(CAN0_INT, CAN0_CS);
 
 BLEController::BLEController(int rxPin, int txPin) : ble(Serial2), cruiseControlSpeed(0) {
+  Serial.begin(9600);  // Initialize Serial for debugging
   // Start UART2 with specific pins
   Serial2.begin(9600, SERIAL_8N1, rxPin, txPin);  // Initialize HM-10 communication at 9600 baud rate
   delay(100);
