@@ -4,11 +4,12 @@
 JoyStick::JoyStick(std::string name, int xSerial, int ySerial, int swPin) : name(name), xReader(xSerial, ANALOGREAD_TOLERANT), yReader(ySerial, ANALOGREAD_TOLERANT), direction(UNKNOWN)
 {
     swBt = new Button("sw_joystick", swPin, 50);
-    
+
     // RTOS
     readMutex = xSemaphoreCreateBinary();
     handler = new TaskHandler(name, JoyStick::ReadSignals, this);
     handler->AddMutex(readMutex);
+    swBt->SetReadMode(ON);
 }
 
 JoyStick::~JoyStick()
@@ -93,8 +94,6 @@ Direction JoyStick::GetDirection()
 
 void JoyStick::SetReadMode(TaskMode mode)
 {
-
     // turn on read task
     handler->SetMode(mode);
-    swBt->SetReadMode(mode);
 }

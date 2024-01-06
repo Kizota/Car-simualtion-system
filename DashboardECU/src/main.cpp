@@ -19,7 +19,7 @@ void setup()
   canController = new CANController(INT_PIN, CS_PIN, (ICanListener *)dataManager);
    
   //add id mask
-  canController->AddIdMask(NODE_ID_SPEED);
+  canController->AddIdMask(NODE_ID_SPEED_FEEDBACK);
   canController->AddIdMask(NODE_ID_TEMPERATURE);
   canController->AddIdMask(NODE_ID_PRESSURE);
 }

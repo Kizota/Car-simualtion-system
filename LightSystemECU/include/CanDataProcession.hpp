@@ -14,7 +14,7 @@ enum MessageID
     NODE_ID_ACCELERATE, // Accepts speed in % from 0 to 100
     NODE_ID_DECELERATE, // Accepts speed in % from 0 to 100
 
-    NODE_ID_SPEED = 0x40, // Accepts request
+    NODE_ID_SPEED = 0x39, // Accepts request
     NODE_ID_SPEED_FEEDBACK = 0x40, // Accepts request
 
     NODE_ID_TEMPERATURE = 0x41, // Accepts request

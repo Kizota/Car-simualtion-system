@@ -37,7 +37,6 @@ float press = 34.2;
 void loop()
 {
   // test send data to dashboard
-  canController->SendMessage(NODE_ID_SPEED_FEEDBACK, speed);
 
   if (speed != 100)
   {
@@ -52,6 +51,7 @@ void loop()
     speed = 0;
   }
 
+  canController->SendMessage(NODE_ID_SPEED_FEEDBACK, speed);
   canController->SendMessage(NODE_ID_TEMPERATURE, temp);
   canController->SendMessage(NODE_ID_PRESSURE, press);
 
