@@ -13,6 +13,7 @@ enum InfoType
 
 class IInfoTracker
 {
+    public:
     virtual bool UpdateInfo(std::pair<InfoType,void*>) = 0;
 };
 

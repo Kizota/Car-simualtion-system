@@ -20,7 +20,6 @@ private:
     DataControl<float> temperature;
     DataControl<float> pressure;
 
-    IInfoTracker *tracker;
 
 public:
     DataManager(IInfoTracker *);
@@ -39,6 +38,7 @@ public:
             break;
 
         case NODE_ID_PRESSURE:
+        
             recievedState = pressure.ReceiveData(ConvertBuffToFloat(data.command));
             break;
         }

@@ -16,20 +16,20 @@ namespace RealTime
             if (IsNewMode())
             // turn on task only one time prevent many task run at a time
             {
-                xTaskCreate(task, name.c_str(), stackDepth, param, 1, &handler);
                 Refresh();
+                xTaskCreate(task, name.c_str(), stackDepth, param, 1, &handler);
             }
 
             break;
         case OFF:
-            if (IsNewMode() && handler!= NULL)
+            if (IsNewMode() && handler != NULL)
             // turn off task
             {
-                Serial.println("turn off task");
+                handler = NULL;
+
+                Refresh();
                 FreeAllMutex();
                 vTaskDelete(handler);
-                handler = NULL;
-                Refresh();
             }
 
             break;

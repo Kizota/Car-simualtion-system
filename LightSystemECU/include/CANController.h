@@ -58,7 +58,6 @@ public:
   {
     // Create a buffer for the message
     CanData data(msgId, sizeof(int));
-    Serial.println("check 1");
 
     // copy value to the buffer
     memcpy(data.command, &value, sizeof(int));

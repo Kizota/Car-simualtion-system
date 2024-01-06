@@ -6,7 +6,6 @@
 #include "IInfoTracker.hpp"
 #include "StateControl.hpp"
 
-
 class Dashboard : IInfoTracker
 {
 private:
@@ -50,7 +49,7 @@ public:
         }
 
         // update new value
-        memcpy((void *)&speed, info.second, sizeof(int));
+        memcpy(val, info.second, sizeof(int));
         taskHandler->SetMode(RealTime::ON);
         return true;
     }
@@ -59,6 +58,7 @@ private:
     static void DisplayData(void *parameter)
     {
         Dashboard *db = static_cast<Dashboard *>(parameter);
+        Serial.println(" ----- DASHBOARD ------");
 
         if (xSemaphoreTake(db->displayMutex, portMAX_DELAY))
         {
@@ -67,8 +67,11 @@ private:
             Serial.println("Pressure: ");
             Serial.println(db->pressure);
             Serial.println("Temperature: ");
-            Serial.println(db->pressure);
+            Serial.println(db->temperature);
+            xSemaphoreGive(db->displayMutex);
         }
+
+        Serial.println(" -----         ------");
 
         db->taskHandler->SetMode(RealTime::OFF);
     }

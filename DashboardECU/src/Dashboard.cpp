@@ -1,13 +1,7 @@
 #include "DashBoard.hpp"
 
-Dashboard::Dashboard()
+Dashboard::Dashboard() : speed(0), temperature(0), pressure(0)
 {
-   taskHandler = new RealTime::TaskHandler("Dashboard",Dashboard::DisplayData ,this);
+  displayMutex = xSemaphoreCreateMutex();
+  taskHandler = new RealTime::TaskHandler("Dashboard", Dashboard::DisplayData, this);
 }
-
-
-
-
-
-
-

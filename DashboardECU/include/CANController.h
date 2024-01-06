@@ -58,7 +58,6 @@ public:
   {
     // Create a buffer for the message
     CanData data(msgId, sizeof(int));
-    Serial.println("check 1");
 
     // copy value to the buffer
     memcpy(data.command, &value, sizeof(int));
@@ -103,8 +102,6 @@ private:
       if (newData.msgId != 0 && controller->IsMessageIdValid(newData.msgId))
       // only call listener to handle the message, when it is valid
       {
-        Serial.print("id valid: ");
-        Serial.println(newData.msgId);
         controller->listener->RecieveMessage(newData);
       }
 
