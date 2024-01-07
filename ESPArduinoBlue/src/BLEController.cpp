@@ -74,7 +74,7 @@ void BLEController::loopSendBLE() {
   }
 }
 
-void BLEController::loopRecieveBLE() {
+void BLEController::loopRecieveCAN() {
   CanData canData = can.ReadCanMessage();
   if (canData.MessageID == NODE_ID_SPEED) {
     int actualSpeed = canData.command[0];

@@ -1,11 +1,11 @@
 #pragma once
 
-#include <iostream>
-#include <queue>
-#include <list>
-
 #include <freertos/FreeRTOS.h>
 #include <freertos/semphr.h>
+
+#include <iostream>
+#include <list>
+#include <queue>
 
 #include "CanDataProcession.hpp"
 #include "Rtos.hpp"
@@ -15,9 +15,8 @@
   1. why the fk couldn't pass ??? mutex method?? for sending message
 */
 
-class CANController : ICanSender
-{
-private:
+class CANController : ICanSender {
+ private:
   // CAN data
   MCP_CAN CAN;
   uint8_t CAN_INT;
@@ -28,12 +27,12 @@ private:
 
   // RTOS
   QueueHandle_t sendDatas;
-  QueueHandle_t rcdDatas; // recieved message queue
+  QueueHandle_t rcdDatas;  // recieved message queue
 
-public:
-  CANController(uint8_t CAN_INT, uint8_t CAN_CS,ICanListener *listener);
+ public:
+  CANController(uint8_t CAN_INT, uint8_t CAN_CS, ICanListener *listener);
 
-  bool AddListener(ICanListener*);
+  bool AddListener(ICanListener *);
 
   bool AddIdMask(unsigned long idMask);
 
@@ -42,8 +41,7 @@ public:
   CanData ReadMessage();
 
   // REVIEW - can be improve with type erasure
-  void SendMessage(uint8_t msgId, float value) override
-  {
+  void SendMessage(uint8_t msgId, float value) override {
     // Create a buffer for the message
     CanData data(msgId, sizeof(float));
 
@@ -54,8 +52,7 @@ public:
     xQueueSend(sendDatas, (void *)&data, portMAX_DELAY);
   }
 
-  void SendMessage(uint8_t msgId, int value) override
-  {
+  void SendMessage(uint8_t msgId, int value) override {
     // Create a buffer for the message
     CanData data(msgId, sizeof(int));
 
@@ -66,13 +63,11 @@ public:
     xQueueSend(sendDatas, (void *)&data, portMAX_DELAY);
   }
 
-private:
-  static void SendMessageTask(void *parameter)
-  {
+ private:
+  static void SendMessageTask(void *parameter) {
     CANController *controller = static_cast<CANController *>(parameter);
     CanData data;
-    while (1)
-    {
+    while (1) {
       if (xQueueReceive(controller->sendDatas, (void *)&data, portMAX_DELAY))
       // sending message waiting in sending message queue
       {
@@ -85,9 +80,7 @@ private:
   }
 
   // REVIEW - check optimize the code
-  static void ReadMessageTask(void *parameter)
-  {
-
+  static void ReadMessageTask(void *parameter) {
     CANController *controller = static_cast<CANController *>(parameter);
     if (controller->listener == nullptr)
     // cancelling the task if listener is not
@@ -96,8 +89,7 @@ private:
       return;
     }
 
-    while (1)
-    {
+    while (1) {
       CanData newData = controller->ReadMessage();
       if (newData.msgId != 0 && controller->IsMessageIdValid(newData.msgId))
       // only call listener to handle the message, when it is valid
