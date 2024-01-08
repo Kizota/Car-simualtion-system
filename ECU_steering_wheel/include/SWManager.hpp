@@ -315,7 +315,7 @@ private:
                     if (timer.IsTimeOut())
                     {
                         Serial.println("decrease motor speed!");
-                        sw->sender->SendMessage(NODE_ID_HIGHBEAM, COMMAND_DOWN);
+                        sw->sender->SendMessage(NODE_ID_SPEED, COMMAND_DOWN);
                     }
                     break;
                 }

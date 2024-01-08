@@ -6,27 +6,29 @@
 #include "IInfoTracker.hpp"
 #include <Arduino.h>
 
-//how to delete the pointer in the task
+// how to delete the pointer in the task
 template <typename T>
 class DataControl
 {
 private:
-    InfoType type;
+    //    InfoType type;
+    std::string type;
     bool skipOutdate;
 
     // data storage
     QueueHandle_t dataQueue;
-    IInfoTracker *tracker;
+    IDataTracker *tracker;
 
     // rtos
     RealTime::TaskHandler *handler;
 
 public:
-    DataControl(InfoType type, int numOfLen, bool skipOutdate, IInfoTracker *tracker) : type(type), skipOutdate(skipOutdate), tracker(tracker)
+    // DataControl(InfoType type, int numOfLen, bool skipOutdate, IDataTracker *tracker) : type(type), skipOutdate(skipOutdate), tracker(tracker)
+    DataControl(std::string type, int numOfLen, bool skipOutdate, IDataTracker *tracker) : type(type), skipOutdate(skipOutdate), tracker(tracker)
     {
         dataQueue = xQueueCreate(numOfLen, sizeof(T));
 
-        std::string name = "data control " + std::to_string(type);
+        std::string name = "data control " + type;
         handler = new RealTime::TaskHandler(name, DataControl::UpdateInfoTask, this);
         handler->SetMode(RealTime::ON);
     }
@@ -67,17 +69,12 @@ private:
             // get data from queue
             T *data = control->GiveData();
 
-            // package the data with meaningful info type
-            std::pair<InfoType, void *> info;
-            info.first = control->type;
-            info.second = (void *)data;
-
+            std::string sdata = control->type + std::to_string(*data);
             // send to the data tracker
-            control->tracker->UpdateInfo(info);
+            control->tracker->UpdateData(sdata);
 
             vTaskDelay(10 / portTICK_PERIOD_MS);
         }
-
     }
 };
 

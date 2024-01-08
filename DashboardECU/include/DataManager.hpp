@@ -2,6 +2,8 @@
 #define DATAMANAGER_HPP
 
 #include "CanDataProcession.hpp"
+#include "WSDataProccession.hpp"
+
 #include "DataControl.hpp"
 #include "IInfoTracker.hpp"
 
@@ -13,23 +15,28 @@ enum
     FLOAT
 };
 
-class DataManager : public ICanListener
+class DataManager : public ICanListener, public IDataTracker
 {
 private:
     DataControl<int> speed;
     DataControl<float> temperature;
     DataControl<float> pressure;
 
+    int latesSpeed;
+    int latesTemp;
+    int latesPress;
+
+    IWSSender *sender;
 
 public:
-    DataManager(IInfoTracker *);
+    DataManager();
 
     bool RecieveMessage(CanData data) override
     {
         bool recievedState = false;
         switch (data.msgId)
         {
-        case NODE_ID_SPEED:
+        case NODE_ID_SPEED_FEEDBACK:
             recievedState = speed.ReceiveData(data.command[0]);
             break;
 
@@ -38,12 +45,20 @@ public:
             break;
 
         case NODE_ID_PRESSURE:
-        
+
             recievedState = pressure.ReceiveData(ConvertBuffToFloat(data.command));
             break;
         }
 
         return recievedState;
+    }
+
+    bool UpdateData(std::string info) override
+    {
+        
+        // update new value
+        sender->SendMessage(DASHBOARD, info );
+        return true;
     }
 
 private:

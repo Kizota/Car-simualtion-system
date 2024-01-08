@@ -1,8 +1,7 @@
 #ifndef IINFOTRACKER_HPP
 #define IINFOTRACKER_HPP
 
-#include <iostream>
-#include <utility>
+#include <string>
 
 enum InfoType
 {
@@ -11,10 +10,10 @@ enum InfoType
     PRESSURE
 };
 
-class IInfoTracker
+class IDataTracker
 {
     public:
-    virtual bool UpdateInfo(std::pair<InfoType,void*>) = 0;
+    virtual bool UpdateData(std::string) = 0;
 };
 
 

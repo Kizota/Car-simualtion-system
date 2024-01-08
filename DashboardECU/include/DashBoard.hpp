@@ -1,12 +1,14 @@
 #ifndef DASHBOARD_HPP
 #define DASHBOARD_HPP
 
+
 #include "CanDataProcession.hpp"
 #include "DataControl.hpp"
 #include "IInfoTracker.hpp"
 #include "StateControl.hpp"
 
-class Dashboard : IInfoTracker
+
+class Dashboard : IDataTracker
 {
 private:
     // info state
@@ -23,36 +25,39 @@ public:
 
     ~Dashboard();
 
-    bool UpdateInfo(std::pair<InfoType, void *> info) override
-    {
-        if (info.second == nullptr)
-        {
-            return false;
-        }
+    // bool UpdateData(std::pair<InfoType, void *> info) override
+    // {
+    //     if (info.second == nullptr)
+    //     {
+    //         return false;
+    //     }
+  
+    //     // initial void pointer and point to update value
+    //     void *val = nullptr;
+    //     switch (info.first)
+    //     {
+    //     case SPEED:
+    //     Serial.println("speed updating ");
+    //         val = &speed;
+    //         break;
+    //     case TEMP:
+    //         val = &temperature;
+    //         break;
+    //     case PRESSURE:
+    //         val = &pressure;
+    //         break;
+    //     default:
+    //         return false;
+    //         break;
+    //     }
+         
+        
+    //     // update new value
+    //     memcpy(val, info.second, sizeof(int));
 
-        // initial void pointer and point to update value
-        void *val = nullptr;
-        switch (info.first)
-        {
-        case SPEED:
-            val = &speed;
-            break;
-        case TEMP:
-            val = &temperature;
-            break;
-        case PRESSURE:
-            val = &pressure;
-            break;
-        default:
-            return false;
-            break;
-        }
-
-        // update new value
-        memcpy(val, info.second, sizeof(int));
-        taskHandler->SetMode(RealTime::ON);
-        return true;
-    }
+    //    taskHandler->SetMode(RealTime::ON);
+    //     return true;
+    // }
 
 private:
     static void DisplayData(void *parameter)

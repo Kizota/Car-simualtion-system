@@ -19,12 +19,12 @@ CANController *canController;
 void setup()
 {
   Serial.begin(9600);
-  lsManager = new LSManager(LEFT_IND_PIN, RIGHT_IND_PIN, HIGH_BM_PIN);
-  canController = new CANController(INT_PIN, CS_PIN, (LSManager *)lsManager);
+   lsManager = new LSManager(LEFT_IND_PIN, RIGHT_IND_PIN, HIGH_BM_PIN);
+   canController = new CANController(INT_PIN, CS_PIN, (LSManager *)lsManager);
 
-  // add message id mask
-  canController->AddIdMask(NODE_ID_INDICATOR);
-  canController->AddIdMask(NODE_ID_HIGHBEAM);
+  // // add message id mask
+   canController->AddIdMask(NODE_ID_INDICATOR);
+   canController->AddIdMask(NODE_ID_HIGHBEAM);
 
   // pinMode(15,OUTPUT);
   // analogWrite(15,100);
@@ -52,8 +52,8 @@ void loop()
   }
 
   canController->SendMessage(NODE_ID_SPEED_FEEDBACK, speed);
-  canController->SendMessage(NODE_ID_TEMPERATURE, temp);
-  canController->SendMessage(NODE_ID_PRESSURE, press);
+  // canController->SendMessage(NODE_ID_TEMPERATURE, temp);
+  // canController->SendMessage(NODE_ID_PRESSURE, press);
 
   vTaskDelay(1000 / portTICK_PERIOD_MS);
 }
