@@ -2,6 +2,9 @@
 #define DATACONTROL_HPP
 
 #include <iostream>
+#include <iomanip>
+#include <sstream>
+
 #include "Rtos.hpp"
 #include "IInfoTracker.hpp"
 #include <Arduino.h>
@@ -68,9 +71,16 @@ private:
         {
             // get data from queue
             T *data = control->GiveData();
+            Serial.println("update data-------: ");
 
-            std::string sdata = control->type + std::to_string(*data);
+            Serial.println(*data);
+            // limit string to 2 decimal
+
+            std::string sdata = control->type + "-" + std::to_string(*data);
             // send to the data tracker
+            // Serial.println("------- update info task -----");
+            // Serial.println(control->type.c_str());
+            // Serial.println(sdata.c_str());
             control->tracker->UpdateData(sdata);
 
             vTaskDelay(10 / portTICK_PERIOD_MS);

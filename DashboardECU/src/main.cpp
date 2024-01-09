@@ -7,8 +7,6 @@
 #include "CANController.h"
 #include "WebSocketManager.hpp"
 
-void WebSocketEvent(WStype_t type, uint8_t *payload, size_t length);
-
 //--------------------------//
 
 #define INT_PIN 0
@@ -19,15 +17,27 @@ void WebSocketEvent(WStype_t type, uint8_t *payload, size_t length);
 Dashboard *dashboard;
 DataManager *dataManager;
 CANController *canController;
+WebSocketManager *wsManager;
+
+void SetupWifi();
+void webSocketEvent(uint8_t num, WStype_t type, uint8_t *payload, size_t length);
 
 void setup()
 {
   Serial.begin(9600);
-  // dashboard = new Dashboard();
-  // dataManager = new DataManager((IDataTracker *)dashboard);
 
+  // terminal dashboard
+  //  dashboard = new Dashboard();
+  //  dataManager = new DataManager((IDataTracker *)dashboard);
+  SetupWifi();
+
+  // intialize managers/controller
   dataManager = new DataManager();
   canController = new CANController(INT_PIN, CS_PIN, (ICanListener *)dataManager);
+  wsManager = new WebSocketManager(webSocketEvent);
+
+  // add relationship betweeen managers and controller
+  dataManager->AddSender((IWSSender*)wsManager);
 
   // //add id mask
   canController->AddIdMask(NODE_ID_SPEED_FEEDBACK);
@@ -52,9 +62,16 @@ void setup()
   // webSocketsClient.onEvent(WebSocketEvent);  //callback function
 }
 
+unsigned long preTime = 0;
+
 void loop()
 {
-  // webSocketsClient.sendTXT("haha");
+  // if (millis() - preTime > 1000)
+  // {
+  //   wsManager->SendMessage(DASHBOARD, "10");
+  //   preTime = millis();
+  // }
+  wsManager->ConnectionHandler();
 }
 
 void webSocketEvent(uint8_t num, WStype_t type, uint8_t *payload, size_t length)
@@ -77,6 +94,18 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t *payload, size_t length)
   Serial.print(num);
   Serial.print("said :");
   Serial.println(mess);
+
+  if (num == 0)
+  {
+    Serial.println("client connected!");
+    wsManager->SetClientConnected(true);
+  }
+  else
+  {
+    Serial.println("more than 1 client client connected!");
+
+    wsManager->SetClientConnected(false);
+  }
 }
 
 void SetupWifi()

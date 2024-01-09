@@ -51,9 +51,9 @@ void loop()
     speed = 0;
   }
 
-  canController->SendMessage(NODE_ID_SPEED_FEEDBACK, speed);
-  // canController->SendMessage(NODE_ID_TEMPERATURE, temp);
-  // canController->SendMessage(NODE_ID_PRESSURE, press);
+canController->SendMessage(NODE_ID_SPEED_FEEDBACK, speed);
+  canController->SendMessage(NODE_ID_TEMPERATURE, temp);
+  canController->SendMessage(NODE_ID_PRESSURE, press);
 
   vTaskDelay(1000 / portTICK_PERIOD_MS);
 }

@@ -6,6 +6,7 @@
 enum ClientType
 {
     DASHBOARD,
+    TEST =2,
 };
 
 class IWSSender

@@ -2,7 +2,7 @@
 #include <algorithm>
 
 // CANController constructor
-CANController::CANController(uint8_t CAN_INT, uint8_t CAN_CS,ICanListener *listener) : CAN(CAN_CS), CAN_INT(CAN_INT), listener(listener)
+CANController::CANController(uint8_t CAN_INT, uint8_t CAN_CS, ICanListener* listener) : CAN(CAN_CS), CAN_INT(CAN_INT), listener(listener)
 {
   Serial.println("can controll constructor");
   // connect to CAN network
@@ -71,12 +71,12 @@ CanData CANController::ReadMessage()
   if (CAN_MSGAVAIL == CAN.checkReceive())
   {
     CAN.readMsgBuf(&data.msgId, &data.len, data.command);
-    Serial.print("msg id:");
-    Serial.println(data.msgId);
-    Serial.print("msg len:");
-    Serial.println(data.len);
-    Serial.print("msg command:");
-    Serial.println(data.command[0]);
+    // Serial.print("msg id:");
+    // Serial.println(data.msgId);
+    // Serial.print("msg len:");
+    // Serial.println(data.len);
+    // Serial.print("msg command:");
+    // Serial.println(data.command[0]);
 
     return data;
   }

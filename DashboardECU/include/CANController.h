@@ -31,7 +31,7 @@ private:
   QueueHandle_t rcdDatas; // recieved message queue
 
 public:
-  CANController(uint8_t CAN_INT, uint8_t CAN_CS,ICanListener *listener);
+  CANController(uint8_t CAN_INT, uint8_t CAN_CS, ICanListener* listener);
 
   bool AddListener(ICanListener*);
 

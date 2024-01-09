@@ -15,9 +15,7 @@ restrict connection to the first client only
 
 */
 
-
-
-class WebSocketManager : IWSSender 
+class WebSocketManager : IWSSender
 {
 private:
     WebServer server;
@@ -27,9 +25,13 @@ private:
     RealTime::TaskHandler *sendingHandler;
     RealTime::TaskHandler *connectionHandler;
 
+    bool isClientConnected;
+
 public:
     WebSocketManager(void (*webSocketEvent)(uint8_t, WStype_t, uint8_t *, size_t));
-   
+
+    void SetClientConnected(bool sta);
+
     // can be extend to store message and send to many client
     bool SendMessage(ClientType client, std::string message) override
     {
@@ -39,39 +41,45 @@ public:
         }
 
         // packaged the data
-        std::pair<ClientType, char *> data;
+        std::pair<ClientType, std::string *> data;
         data.first = client;
-        strcpy(data.second, message.c_str());
+        data.second = new std::string(message);
+        Serial.println("store info -------: ");
+        Serial.println(message.c_str());
+        Serial.println(data.second->c_str());
+
+        Serial.println(":   -------: ");
+
+        bool sta = xQueueSend(msgQueue, (void *)&data, portMAX_DELAY);
 
         // push the message to queue
-        return xQueueSend(msgQueue, (void *)&data, portMAX_DELAY);
+        return sta;
     }
+
+    void ConnectionHandler();
 
 private:
-    static void ConnectionTask(void *paramater)
-    {
-        WebSocketManager *manager = static_cast<WebSocketManager *>(paramater);
-
-        while (1)
-        {
-            // response
-            manager->server.handleClient();
-            manager->webSocket.loop();
-        }
-    }
-
     static void SendingMessagetask(void *parameter)
     {
         WebSocketManager *manager = static_cast<WebSocketManager *>(parameter);
-        std::pair<ClientType, char *> data;
-        data.first = DASHBOARD;
-        data.second = NULL;
+        std::pair<ClientType, std::string *> data;
+        data.first = TEST;
+        data.second = NULL; // ????
+
+        Serial.println("in send message!");
 
         while (1)
         {
-            if (xQueueSend(manager->msgQueue, (void *)&data, portMAX_DELAY) == pdTRUE)
+            // if (manager->isClientConnected)
+            // {
+            if (xQueueReceive(manager->msgQueue, (void *)&data, portMAX_DELAY))
             {
-                manager->webSocket.sendTXT((uint8_t)data.first, data.second);
+                Serial.println("send message!");
+                Serial.println(data.first);
+                Serial.println(data.second->c_str());
+                manager->webSocket.broadcastTXT(data.second->c_str());
+
+                delete data.second;
             }
 
             vTaskDelay(10 / portTICK_PERIOD_MS);

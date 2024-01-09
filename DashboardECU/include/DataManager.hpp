@@ -31,6 +31,8 @@ private:
 public:
     DataManager();
 
+    bool AddSender(IWSSender* sender);
+
     bool RecieveMessage(CanData data) override
     {
         bool recievedState = false;
@@ -55,7 +57,13 @@ public:
 
     bool UpdateData(std::string info) override
     {
-        
+        if(sender == nullptr)
+        {
+            return false;
+        }
+         
+        Serial.print("send info: -------: ");
+    //    Serial.println(info.c_str());
         // update new value
         sender->SendMessage(DASHBOARD, info );
         return true;
