@@ -3,10 +3,10 @@
 // CANController class definition
 CANController::CANController(uint8_t CAN_INT, uint8_t CAN_CS) : CAN(CAN_CS), CAN_INT(CAN_INT) {
   // connect to CAN network
-  while (CAN_OK != CAN.begin(MCP_STDEXT, CAN_500KBPS, MCP_16MHZ)) {
-    Serial.println("CAN BUS init failed");
-    delay(100);
-  }
+  // while (CAN_OK != CAN.begin(MCP_STDEXT, CAN_500KBPS, MCP_16MHZ)) {
+  Serial.println("CAN BUS init failed");
+  delay(100);
+  // }
 
   // set CAN mode
   CAN.setMode(MCP_NORMAL);

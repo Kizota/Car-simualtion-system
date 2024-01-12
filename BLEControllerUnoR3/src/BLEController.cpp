@@ -2,18 +2,7 @@
 
 #include <HardwareSerial.h>
 
-// #include <string>
-
-// #include "CANController.h"
-
-// #define CAN0_INT 2  // Set INT to pin 2
-// #define CAN0_CS 4   // Set CS to pin 4
-
-// CANController can(CAN0_INT, CAN0_CS);
-
-ArduinoBlue* BLEController::ble = new ArduinoBlue(Serial2);
-
-BLEController::BLEController(int rxPin, int txPin) : cruiseControlSpeed(0) {
+BLEController::BLEController(int rxPin, int txPin) : ble(Serial2), cruiseControlSpeed(0) {
   Serial.begin(9600);  // Initialize Serial for debugging
   // Start UART2 with specific pins
   Serial2.begin(9600, SERIAL_8N1, rxPin, txPin);  // Initialize HM-10 communication at 9600 baud rate
@@ -24,11 +13,11 @@ BLEController::BLEController(int rxPin, int txPin) : cruiseControlSpeed(0) {
 
 void BLEController::loopSendBLE() {
   // ID of the button pressed pressed.
-  int button = ble->getButton();
+  int button = ble.getButton();
   // ID of the slider moved.
-  int sliderId = ble->getSliderId();
+  int sliderId = ble.getSliderId();
   // Slider value goes from 0 to 200.
-  int sliderVal = ble->getSliderVal();
+  int sliderVal = ble.getSliderVal();
   if (button != -1) {
     Serial.print("Button: ");
     Serial.println(button);
@@ -76,46 +65,46 @@ void BLEController::loopSendBLE() {
   }
 }
 
-void BLEController::loopRecieveCAN() {
-  CanData canData = can.ReadCanMessage();
-  if (canData.MessageID == NODE_ID_SPEED) {
-    int actualSpeed = canData.command[0];
-    ble->sendDisplayData(0, String(actualSpeed));
-  } else if (canData.MessageID == NODE_ID_RPM) {
-    int RPM = canData.command[0];
-    ble->sendDisplayData(1, String(RPM));
-  } else if (canData.MessageID == NODE_ID_PRESSURE) {
-    int leftFrontTirePressure = canData.command[0];
-    int rightFrontTirePressure = canData.command[1];
-    int leftRearTirePressure = canData.command[2];
-    int rightRearTirePressure = canData.command[3];
-    ble->sendDisplayData(2, String(leftFrontTirePressure));
-    ble->sendDisplayData(3, String(rightFrontTirePressure));
-    ble->sendDisplayData(4, String(leftRearTirePressure));
-    ble->sendDisplayData(5, String(rightRearTirePressure));
-  } else if (canData.MessageID == NODE_ID_TEMPERATURE) {
-    int temperature = canData.command[0];
-    ble->sendDisplayData(6, String(temperature));
-  }
-}
+// // void BLEController::loopRecieveCAN() {
+// // // CanData canData = can.ReadCanMessage();
+// // if (canData.MessageID == NODE_ID_SPEED) {
+// // int actualSpeed = canData.command[0];
+// ble.sendDisplayData(0, String(actualSpeed));
+// // } else if (canData.MessageID == NODE_ID_RPM) {
+// // int RPM = canData.command[0];
+// ble.sendDisplayData(1, String(RPM));
+// // } else if (canData.MessageID == NODE_ID_PRESSURE) {
+// // int leftFrontTirePressure = canData.command[0];
+// // int rightFrontTirePressure = canData.command[1];
+// // int leftRearTirePressure = canData.command[2];
+// // int rightRearTirePressure = canData.command[3];
+// ble.sendDisplayData(2, String(leftFrontTirePressure));
+// ble.sendDisplayData(3, String(rightFrontTirePressure));
+// ble.sendDisplayData(4, String(leftRearTirePressure));
+// ble.sendDisplayData(5, String(rightRearTirePressure));
+// // } else if (canData.MessageID == NODE_ID_TEMPERATURE) {
+// // int temperature = canData.command[0];
+// ble.sendDisplayData(6, String(temperature));
+// }
+// }
 
 void BLEController::configureHM10() {
   // Send AT commands to configure HM-10 module settings
-  Serial2.write("AT");  // Check if the module responds
-  delay(500);           // Delay to allow the module to respond
+  Serial2.println("AT");  // Check if the module responds
+  delay(500);             // Delay to allow the module to respond
   if (Serial2.available()) {
     String response = Serial2.readStringUntil('\n');  // Read the response from HM-10
     Serial.println("Response: " + response);
   }
   // Set the name of the HM-10 module
-  Serial2.write("Car");
+  Serial2.println("Car");
   delay(500);
-  Serial2.write("AT+BAUD0");  // 0 represents 9200 baud rate
+  Serial2.println("AT+BAUD8");  // 8 represents 115200 baud rate
   delay(500);
   // Set the HM-10 module as a peripheral device (slave)
-  Serial2.write("AT+ROLE0");  // 0 for peripheral, 1 for central
+  Serial2.println("AT+ROLE0");  // 0 for peripheral, 1 for central
   delay(500);
   // Restart the module to apply changes
-  Serial2.write("AT+RESET");
+  Serial2.println("AT+RESET");
   delay(500);
 }
