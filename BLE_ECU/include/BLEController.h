@@ -18,7 +18,8 @@ class BLEController : public ICanListener {
   BLEController(int rxPin, int txPin);
   void addSender(ICanSender *Can);
   void loopSendBLE();
-  // static void loopRecieveCAN(CanData rcdData);
+
+ private:
   bool RecieveMessage(CanData newData) override {
     return xQueueSend(rcdCmdQueue, (void *)&newData, portMAX_DELAY);
   }
