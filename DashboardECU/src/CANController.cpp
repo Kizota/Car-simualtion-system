@@ -71,12 +71,12 @@ CanData CANController::ReadMessage()
   if (CAN_MSGAVAIL == CAN.checkReceive())
   {
     CAN.readMsgBuf(&data.msgId, &data.len, data.command);
-    // Serial.print("msg id:");
-    // Serial.println(data.msgId);
-    // Serial.print("msg len:");
-    // Serial.println(data.len);
-    // Serial.print("msg command:");
-    // Serial.println(data.command[0]);
+    Serial.print("msg id:");
+    Serial.println(data.msgId);
+    Serial.print("msg len:");
+    Serial.println(data.len);
+    Serial.print("msg command:");
+    Serial.println(data.command[0]);
 
     return data;
   }

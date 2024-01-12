@@ -20,7 +20,7 @@ public:
     uint16_t AnalogRead();
 };
 
-struct HardwareSerialReader
+class HardwareSerialReader
 {
 private:
     int num;
@@ -40,7 +40,6 @@ private:
     static void SerialReadingTask(void *parameter)
     {
         HardwareSerialReader *reader = static_cast<HardwareSerialReader *>(parameter);
-        Serial.print("Serial num reader begin: ");
         while (1)
         {
             if (reader->mySerial.available())

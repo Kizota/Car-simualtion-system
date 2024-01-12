@@ -3,6 +3,7 @@
 
 AnalogReader::AnalogReader(uint8_t pin, uint16_t tolerant) : pin(pin), tolerant(tolerant), val(0)
 {
+
     pinMode(pin, INPUT);
 }
 

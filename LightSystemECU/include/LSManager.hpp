@@ -7,6 +7,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/semphr.h"
 
+#include <Arduino.h>
 /*
 //REVIEW - opitimize code
   1. seperate two task of handling ind and high beam into 2 tasks
@@ -30,6 +31,7 @@ public:
 
     bool RecieveMessage(CanData newData) override
     {
+        Serial.println(newData.msgId);
         return xQueueSend(rcdCmdQueue, (void *)&newData, portMAX_DELAY);
     }
 
@@ -38,16 +40,19 @@ private:
     {
         LSManager *lsManager = static_cast<LSManager *>(parameter);
         CanData rcdData;
+
         while (1)
         {
+
             if (xQueueReceive(lsManager->rcdCmdQueue, (void *)&rcdData, portMAX_DELAY))
             {
                 Serial.println("haha in reading command task");
+                Serial.println("recieve command indicator");
 
                 switch (rcdData.msgId)
                 {
                 case NODE_ID_INDICATOR:
-                    // lsManager->leftInd.SetBlinking(RealTime::ON);
+                    Serial.println("recieve command indicator");
                     lsManager->rightInd.SetBlinking(RealTime::ON);
                     HandleIndicatorCommand(rcdData.command[0], &lsManager->leftInd, &lsManager->rightInd);
                     break;
@@ -70,11 +75,14 @@ private:
         }
 
         LighSystemCommand cmd = static_cast<LighSystemCommand>(command);
+        Serial.println("check indicator");
 
         // turn on and off indiccators according to the command
         switch (cmd)
         {
         case LEFT_IND_ON:
+            Serial.println("left indicator");
+
             leftInd->SetBlinking(RealTime::ON);
             rightInd->SetBlinking(RealTime::OFF);
 

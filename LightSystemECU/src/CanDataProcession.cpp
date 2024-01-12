@@ -1,6 +1,6 @@
 #include "CanDataProcession.hpp"
 
-CanData::CanData() : msgId(0), len(0)
+CanData::CanData() : msgId(NO_MESSGAGE), len(0)
 {
   command[8] = {0};
 }

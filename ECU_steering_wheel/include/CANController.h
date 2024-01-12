@@ -39,7 +39,6 @@ private:
   uint8_t CAN_INT;
 
   QueueHandle_t sendDatas;
-  // QueueHandle_t recievedMsgQueue;
 
 public:
   CANController(uint8_t CAN_INT, uint8_t CAN_CS);

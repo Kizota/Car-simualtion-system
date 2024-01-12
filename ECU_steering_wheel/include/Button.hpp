@@ -3,18 +3,18 @@
 
 #include <iostream>
 #include <string>
+#include <atomic>
 
 #include <Arduino.h>
 #include "Rtos.hpp"
 #include "config.hpp"
 #include "Timer.hpp"
 
-
 // REVIEW
 /*
    1. implement thread safe with queue
-     - but new update into queue 
-     - read gonna read after that 
+     - but new update into queue
+     - read gonna read after that
 */
 
 class Button
@@ -26,19 +26,20 @@ private:
     // read data
     uint8_t preState;
     uint8_t state;
-    bool isPressed;
-    
-    //timer for debouncing
+    std::atomic<bool> isPressed;
+
+    // timer for debouncing
     Timer *timer;
-    
-    //RTOS
+
+    // RTOS
     SemaphoreHandle_t readMutex;
     TaskHandler *readTaskHandler;
+
 public:
     Button(std::string name, int pin, uint32_t interval);
 
     ~Button();
-    
+
     bool IsPressed();
 
     bool IsHold();
@@ -46,7 +47,7 @@ public:
     // on will turn on the read task, off will delete the task
     void SetReadMode(TaskMode mode);
     // delete task
-
+private:
     static void ReadSignal(void *paramater)
     {
         while (1)
@@ -58,26 +59,26 @@ public:
             // denoise from button ciruit
             if (reading != button->preState)
             {
-
                 button->timer->ReFresh();
             }
-        
+
             // debounce
             if (button->timer->IsTimeOut())
             {
                 if (button->state != reading)
                 {
                     // record the button state
-                    if (xSemaphoreTake(button->readMutex, portMAX_DELAY))
-                    // update state with thread safe
+                    // if (xSemaphoreTake(button->readMutex, portMAX_DELAY))
+                    // // update state with thread safe
+                    // {
+                    button->state = reading;
+                    if (reading == LOW)
                     {
-                        button->state = reading;
-                        if(reading == LOW)
-                        {
-                            button->isPressed = true;
-                        }
-                        xSemaphoreGive(button->readMutex);
+                        Serial.println("is pressed!");
+                        button->isPressed = true;
                     }
+                    //  xSemaphoreGive(button->readMutex);
+                    // }
                 }
             }
 

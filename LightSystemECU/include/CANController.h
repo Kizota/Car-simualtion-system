@@ -91,7 +91,7 @@ class CANController : ICanSender {
 
     while (1) {
       CanData newData = controller->ReadMessage();
-      if (newData.msgId != 0 && controller->IsMessageIdValid(newData.msgId))
+      if (newData.msgId != NO_MESSGAGE && controller->IsMessageIdValid(newData.msgId))
       // only call listener to handle the message, when it is valid
       {
         Serial.print("id valid: ");

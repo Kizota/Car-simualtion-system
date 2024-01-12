@@ -72,6 +72,7 @@ private:
             }
             else if (sw->joyStk->IsPressed())
             {
+                xTaskCreate(SWManager::HandleMotorCommand, "motor command", stackDepth, sw, 2, NULL);
             }
 
             vTaskDelay(10 / portTICK_PERIOD_MS);
@@ -193,7 +194,6 @@ private:
                     }
                     else
                     {
-                        Serial.println("sender is not available!");
                         state = DONE;
                     }
                 }
@@ -292,6 +292,8 @@ private:
                 case UP:
                     if (control.IsNewState())
                     {
+                        Serial.println("up");
+
                         // refresh the timer when starting to increase the brightness
                         timer.ReFresh();
                         control.Refresh();
@@ -307,6 +309,8 @@ private:
                 case DOWN:
                     if (control.IsNewState())
                     {
+                        Serial.println("down");
+
                         // refresh the timer when starting to decrease the brightness
                         timer.ReFresh();
                         control.Refresh();
@@ -319,15 +323,17 @@ private:
                     }
                     break;
                 }
-
+                
                 // cancel task when button is release
-                if (!sw->hgBmBt->IsPressed())
+                if (sw->joyStk->IsPressed())
                 {
+                    Serial.println("cancel motor!");
+                    sw->sender->SendMessage(NODE_ID_SPEED, COMMAND_STOP); // 2
                     state = DONE;
                 }
                 break;
-
             case DONE:
+
                 Serial.println("motor task is done!");
                 // turn off joystick reading
                 sw->joyStk->SetReadMode(OFF);

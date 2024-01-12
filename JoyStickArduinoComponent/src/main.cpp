@@ -31,6 +31,8 @@ void setup()
   pinMode(SIGNAL_PIN, OUTPUT);
 }
 
+int preRead = 0;
+
 void loop()
 {
   // put your main code here, to run repeatedly:
@@ -40,30 +42,32 @@ void loop()
     int xParam = analogRead(PIN_ANALOG_X);
     int yParam = analogRead(PIN_ANALOG_Y);
 
-    Serial.print("xParam: ");
-    Serial.println(xParam);
+    // Serial.print("xParam: ");
+    // Serial.println(xParam);
 
-    Serial.print("yParam: ");
-    Serial.println(yParam);
+    // Serial.print("yParam: ");
+    // Serial.println(yParam);
 
-    // convert x
+    // // convert x
     long resultx = map(xParam, 0, 1023, 0, 255);
     Serial.print("mapped value x: ");
     Serial.println(resultx);
-    mySerial0.print((char)resultx);
+     mySerial0.print((char)resultx);
 
-    // convert y
+    // // convert y
     long resulty = map(yParam, 0, 1023, 0, 255);
     Serial.print("mapped value y: ");
     Serial.println(resulty);
-    mySerial2.print((char)resulty);
+     mySerial2.print((char)resulty);
 
     preTime = millis();
   }
 
   int readingBt = digitalRead(JT_BT_PIN);
 
-  digitalWrite(SIGNAL_PIN, !readingBt);
+
+
+  digitalWrite(SIGNAL_PIN, readingBt);
 }
 
 // put function definitions here:

@@ -22,9 +22,9 @@ private:
     DataControl<float> temperature;
     DataControl<float> pressure;
 
-    int latesSpeed;
-    int latesTemp;
-    int latesPress;
+    // int latesSpeed;
+    // int latesTemp;
+    // int latesPress;
 
     IWSSender *sender;
 
@@ -62,7 +62,6 @@ public:
             return false;
         }
          
-        Serial.print("send info: -------: ");
     //    Serial.println(info.c_str());
         // update new value
         sender->SendMessage(DASHBOARD, info );

@@ -34,10 +34,7 @@ JoyStick *joyStk;
 SWManager *swManager;
 CANController *canController;
 
-// MCP_CAN CAN(CS_PIN);
 
-// HardwareSerial mySerial0(0); //read x value
-// HardwareSerial mySerial2(2); //read y value
 void setup()
 {
   Serial.begin(9600);
@@ -54,7 +51,7 @@ void setup()
   swManager->SetSender((ISender *)canController);
 
   // vTaskStartScheduler();
-
+ joyStk->SetReadMode(ON);
   // connect to CAN network
 }
 int ind = 0;
@@ -97,7 +94,7 @@ void loop()
   // }
 
   Direction directiron = joyStk->GetDirection();
-
+   
   if (directiron != preDirection)
   {
     Serial.print("directiron");

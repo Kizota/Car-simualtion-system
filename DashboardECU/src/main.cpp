@@ -37,13 +37,15 @@ void setup()
   wsManager = new WebSocketManager(webSocketEvent);
 
   // add relationship betweeen managers and controller
-  dataManager->AddSender((IWSSender*)wsManager);
+  dataManager->AddSender((IWSSender *)wsManager);
 
   // //add id mask
   canController->AddIdMask(NODE_ID_SPEED_FEEDBACK);
+  canController->AddIdMask(NODE_ID_SPEED);
+
   canController->AddIdMask(NODE_ID_TEMPERATURE);
   canController->AddIdMask(NODE_ID_PRESSURE);
-  canController->AddIdMask(NODE_ID_INDICATOR);
+  // canController->AddIdMask(NODE_ID_INDICATOR);
 
   // // wifi connection
   // WiFi.begin(ssid, password);

@@ -44,11 +44,7 @@ public:
         std::pair<ClientType, std::string *> data;
         data.first = client;
         data.second = new std::string(message);
-        Serial.println("store info -------: ");
-        Serial.println(message.c_str());
-        Serial.println(data.second->c_str());
-
-        Serial.println(":   -------: ");
+     
 
         bool sta = xQueueSend(msgQueue, (void *)&data, portMAX_DELAY);
 
