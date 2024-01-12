@@ -4,12 +4,12 @@
 
 class BLEController {
  private:
-  ArduinoBlue ble;  // pass reference of bluetooth object to ArduinoBlue constructor.
+  static ArduinoBlue *ble;  // pass reference of bluetooth object to ArduinoBlue constructor.
   int cruiseControlSpeed;
   void configureHM10();
 
  public:
   BLEController(int rxPin, int txPin);
   void loopSendBLE();
-  void loopRecieveCAN();
+  void testDislay();
 };

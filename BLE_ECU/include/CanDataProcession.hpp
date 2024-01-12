@@ -4,8 +4,9 @@
 #include <mcp_can.h>
 
 #include <cstdint>
-enum MessageID
-{VOID_ID = -1,
+#include <iostream>
+enum MessageID {
+  VOID_ID = -1,
   NODE_ID_INDICATOR,
   NODE_ID_HIGHBEAM ,  // Accepts on or off
 
@@ -22,7 +23,7 @@ enum MessageID
   NODE_ID_RPM,                  // Accepts request
   NODE_ID_DASHBOARD,            // Sends requests and accepts data
   NODE_ID_CRUISECONTROL,        // Accepts on or off
-  NODE_ID_CRUISECONTROL_SPEED,  //
+  NODE_ID_CRUISECONTROL_SPEED,  // Accepts speed in % from 0 to 100
 };
 
 // Commands for nodes over CAN
