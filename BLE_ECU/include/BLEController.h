@@ -22,25 +22,27 @@ class BLEController : public ICanListener {
   bool RecieveMessage(CanData newData) override {
     return xQueueSend(rcdCmdQueue, (void *)&newData, portMAX_DELAY);
   }
+  static float ConvertBuffToFloat(byte *buff) {
+    float result = 0;
+    memcpy((void *)&result, (void *)buff, sizeof(float));
+    return result;
+  }
   static void RecieveCAN(CanData rcdData) {
-    int actualSpeed, RPM, leftFrontTirePressure, rightFrontTirePressure, leftRearTirePressure, rightRearTirePressure, temperature;
+    int Speed;
+    float leftFrontTirePressure, rightFrontTirePressure, leftRearTirePressure, rightRearTirePressure, temperature;
 
     switch (rcdData.msgId) {
-      case NODE_ID_SPEED:
-        actualSpeed = rcdData.command[0];
-        ble->sendDisplayData(1, String(actualSpeed));
-        Serial.println("actual speed: " + String(actualSpeed));
-        break;
-      case NODE_ID_RPM:
-        RPM = rcdData.command[0];
-        ble->sendDisplayData(2, String(RPM));
-        Serial.println("RPM: " + String(RPM));
+      case NODE_ID_SPEED_FEEDBACK:
+        memcpy(&Speed, &rcdData.command[0], sizeof(int));
+        ble->sendDisplayData(1, String(Speed));
+        Serial.println("speed: " + String(Speed));
         break;
       case NODE_ID_PRESSURE:
-        leftFrontTirePressure = rcdData.command[0];
-        rightFrontTirePressure = rcdData.command[1];
-        leftRearTirePressure = rcdData.command[2];
-        rightRearTirePressure = rcdData.command[3];
+        leftFrontTirePressure = ConvertBuffToFloat(rcdData.command);
+        rightFrontTirePressure = leftFrontTirePressure + 0.1;
+        leftRearTirePressure = leftFrontTirePressure - 0.1;
+        rightRearTirePressure = leftFrontTirePressure;
+
         ble->sendDisplayData(3, String(leftFrontTirePressure));
         ble->sendDisplayData(4, String(rightFrontTirePressure));
         ble->sendDisplayData(5, String(leftRearTirePressure));
@@ -51,7 +53,7 @@ class BLEController : public ICanListener {
         Serial.println("right rear tire pressure: " + String(rightRearTirePressure));
         break;
       case NODE_ID_TEMPERATURE:
-        temperature = rcdData.command[0];
+        memcpy(&temperature, &rcdData.command[0], sizeof(float));
         ble->sendDisplayData(7, String(temperature));
         Serial.println("temperature: " + String(temperature));
         break;
@@ -69,15 +71,4 @@ class BLEController : public ICanListener {
       }
     }
   }
-  // static void SendingBLETask(void *parameter) {
-  //   BLEController *bleController = static_cast<BLEController *>(parameter);
-  //   CanData rcdData;
-  //   while (1) {
-  //     if (xQueueReceive(bleController->rcdSendQueue, (void *)&rcdData, portMAX_DELAY)) {
-  //       Serial.println("Sending ble task");
-  //       bleController->loopSendBLE();
-  //       vTaskDelay(10 / portTICK_PERIOD_MS);
-  //     }
-  //   }
-  // }
 };

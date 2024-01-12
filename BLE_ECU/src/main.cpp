@@ -18,8 +18,7 @@ void setup() {
   bleController = new BLEController(RX_PIN, TX_PIN);
   canController = new CANController(INT_PIN, CS_PIN, (ICanListener *)bleController);
   bleController->addSender((ICanSender *)canController);
-  canController->AddIdMask(NODE_ID_SPEED);
-  canController->AddIdMask(NODE_ID_RPM);
+  canController->AddIdMask(NODE_ID_SPEED_FEEDBACK);
   canController->AddIdMask(NODE_ID_PRESSURE);
   canController->AddIdMask(NODE_ID_TEMPERATURE);
 }
