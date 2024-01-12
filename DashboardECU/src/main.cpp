@@ -1,10 +1,9 @@
 #include <Arduino.h>
 
-#include "Config.hpp"
-
-#include "DataManager.hpp"
-#include "DashBoard.hpp"
 #include "CANController.h"
+#include "Config.hpp"
+#include "DashBoard.hpp"
+#include "DataManager.hpp"
 #include "WebSocketManager.hpp"
 
 //--------------------------//
@@ -22,8 +21,7 @@ WebSocketManager *wsManager;
 void SetupWifi();
 void webSocketEvent(uint8_t num, WStype_t type, uint8_t *payload, size_t length);
 
-void setup()
-{
+void setup() {
   Serial.begin(9600);
 
   // terminal dashboard
@@ -37,7 +35,7 @@ void setup()
   wsManager = new WebSocketManager(webSocketEvent);
 
   // add relationship betweeen managers and controller
-  dataManager->AddSender((IWSSender*)wsManager);
+  dataManager->AddSender((IWSSender *)wsManager);
 
   // //add id mask
   canController->AddIdMask(NODE_ID_SPEED_FEEDBACK);
@@ -64,8 +62,7 @@ void setup()
 
 unsigned long preTime = 0;
 
-void loop()
-{
+void loop() {
   // if (millis() - preTime > 1000)
   // {
   //   wsManager->SendMessage(DASHBOARD, "10");
@@ -74,18 +71,15 @@ void loop()
   wsManager->ConnectionHandler();
 }
 
-void webSocketEvent(uint8_t num, WStype_t type, uint8_t *payload, size_t length)
-{
+void webSocketEvent(uint8_t num, WStype_t type, uint8_t *payload, size_t length) {
   Serial.print("web socket event: ");
   Serial.println(type);
 
   char mess[SIZE_MESS];
 
-  if (type == WStype_TEXT)
-  {
+  if (type == WStype_TEXT) {
     // read message
-    for (int i = 0; i < length; i++)
-    {
+    for (int i = 0; i < length; i++) {
       mess[i] = (char)payload[i];
     }
     mess[length] = '\0';
@@ -95,27 +89,22 @@ void webSocketEvent(uint8_t num, WStype_t type, uint8_t *payload, size_t length)
   Serial.print("said :");
   Serial.println(mess);
 
-  if (num == 0)
-  {
+  if (num == 0) {
     Serial.println("client connected!");
     wsManager->SetClientConnected(true);
-  }
-  else
-  {
+  } else {
     Serial.println("more than 1 client client connected!");
 
     wsManager->SetClientConnected(false);
   }
 }
 
-void SetupWifi()
-{
+void SetupWifi() {
   // connect to wifi
   WiFi.begin(ssid, password);
 
   // guard the wifi connection
-  while (WiFi.status() != WL_CONNECTED)
-  {
+  while (WiFi.status() != WL_CONNECTED) {
     Serial.printf("waiting for connecting...\n");
     delay(1000);
   }
