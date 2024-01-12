@@ -14,5 +14,8 @@ void setup() {
 
 void loop() {
   ble.loopSendBLE();
-  // BLE.loopRecieveBLE();
+  // make a millis timer that will do the loop testDislay every 5 seconds
+  if (millis() % 5000 == 0) {
+    ble.testDislay();
+  }
 }
